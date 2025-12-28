@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Öğretici Soru Bankası</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #f0f2f5;
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        /* Kart Animasyonları */
+        .fade-in { animation: fadeIn 0.3s ease-in; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* Şık Tasarımı */
+        .option-card {
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 2px solid transparent;
+            background: white;
+        }
+        
+        /* Mobilde hover efektini kaldırıyoruz ki yapışıp kalmasın */
+        @media (hover: hover) {
+            .option-card:hover:not(.disabled) {
+                border-color: #3b82f6;
+                background-color: #eff6ff;
+                transform: translateY(-2px);
+                box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            }
+        }
+
+        .option-card:active:not(.disabled) {
+            transform: scale(0.98);
+            background-color: #eff6ff;
+        }
+
+        /* Durum Renkleri */
+        .option-card.correct {
+            background-color: #dcfce7 !important;
+            border-color: #22c55e !important;
+            color: #14532d;
+        }
+        .option-card.wrong {
+            background-color: #fee2e2 !important;
+            border-color: #ef4444 !important;
+            color: #7f1d1d;
+        }
+        .disabled {
+            pointer-events: none;
+        }
+
+        /* Progress Bar */
+        .progress-fill {
+            transition: width 0.5s ease-out;
+        }
+
+        /* Menü Butonları */
+        .menu-btn {
+            background: white;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .menu-btn:active {
+            transform: scale(0.95);
+        }
+    </style>
+</head>
+<body class="h-screen flex flex-col text-gray-800 overflow-hidden">
+
+    <!-- Veri Dosyası -->
+    <script src="data.js"></script>
+
+    <!-- Header -->
+    <header class="bg-white shadow-sm z-30 px-4 py-3 flex justify-between items-center h-16 shrink-0">
+        <div class="flex items-center gap-3 cursor-pointer" onclick="returnToHome()">
+            <div class="bg-blue-600 text-white w-10 h-10 rounded-xl flex items-center justify-center shadow-blue-200 shadow-lg">
+                <i class="fas fa-book-open text-lg"></i>
+            </div>
+            <div>
+                <h1 class="font-bold text-gray-800 leading-tight text-sm md:text-base">Dinler Tarihi</h1>
+                <p class="text-[10px] md:text-xs text-gray-500 font-medium tracking-wide">ÖĞRETİCİ MOD</p>
+            </div>
+        </div>
+        
+        <!-- Sayaç (Sadece Quiz Ekranında Görünür) -->
+        <div id="header-stats" class="hidden flex items-center gap-2 bg-gray-100 px-3 py-1.5 rounded-lg text-sm font-semibold">
+            <span class="text-green-600"><i class="fas fa-check mr-1"></i><span id="score-correct">0</span></span>
+            <div class="w-px h-4 bg-gray-300 mx-1"></div>
+            <span class="text-red-500"><i class="fas fa-times mr-1"></i><span id="score-wrong">0</span></span>
+        </div>
+    </header>
+
+    <!-- EKRANLAR -->
+    <div class="flex-1 relative overflow-hidden bg-gray-50 w-full max-w-3xl mx-auto md:my-4 md:rounded-2xl md:shadow-xl md:border border-gray-200">
+        
+        <!-- 1. BAŞLANGIÇ EKRANI -->
+        <div id="start-screen" class="absolute inset-0 flex flex-col p-6 overflow-y-auto fade-in bg-white">
+            <div class="text-center mt-4 mb-8">
+                <h2 class="text-2xl font-bold text-gray-800 mb-2">Sınav Modu Seçin</h2>
+                <p class="text-gray-500 text-sm">Sorular her seferinde havuzdan rastgele seçilir.</p>
+            </div>
+
+            <div class="grid grid-cols-1 gap-4 w-full max-w-md mx-auto">
+                <button onclick="startQuiz(10)" class="menu-btn p-5 rounded-2xl border border-gray-100 shadow-sm flex items-center gap-4 hover:border-blue-500 group">
+                    <div class="w-12 h-12 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center font-bold text-xl group-hover:bg-blue-600 group-hover:text-white transition-colors">10</div>
+                    <div class="text-left">
+                        <div class="font-bold text-lg">Hızlı Pratik</div>
+                        <div class="text-xs text-gray-400">Rastgele 10 Soru</div>
+                    </div>
+                    <i class="fas fa-chevron-right ml-auto text-gray-300"></i>
+                </button>
+
+                <button onclick="startQuiz(25)" class="menu-btn p-5 rounded-2xl border border-gray-100 shadow-sm flex items-center gap-4 hover:border-purple-500 group">
+                    <div class="w-12 h-12 rounded-full bg-purple-50 text-purple-600 flex items-center justify-center font-bold text-xl group-hover:bg-purple-600 group-hover:text-white transition-colors">25</div>
+                    <div class="text-left">
+                        <div class="font-bold text-lg">İdeal Çalışma</div>
+                        <div class="text-xs text-gray-400">Rastgele 25 Soru</div>
+                    </div>
+                    <i class="fas fa-chevron-right ml-auto text-gray-300"></i>
+                </button>
+
+                <button onclick="startQuiz(50)" class="menu-btn p-5 rounded-2xl border border-gray-100 shadow-sm flex items-center gap-4 hover:border-orange-500 group">
+                    <div class="w-12 h-12 rounded-full bg-orange-50 text-orange-600 flex items-center justify-center font-bold text-xl group-hover:bg-orange-600 group-hover:text-white transition-colors">50</div>
+                    <div class="text-left">
+                        <div class="font-bold text-lg">Derinleşme</div>
+                        <div class="text-xs text-gray-400">Rastgele 50 Soru</div>
+                    </div>
+                    <i class="fas fa-chevron-right ml-auto text-gray-300"></i>
+                </button>
+
+                <button onclick="startQuiz(100)" class="menu-btn p-5 rounded-2xl border border-gray-100 shadow-sm flex items-center gap-4 hover:border-teal-500 group">
+                    <div class="w-12 h-12 rounded-full bg-teal-50 text-teal-600 flex items-center justify-center font-bold text-xl group-hover:bg-teal-600 group-hover:text-white transition-colors">100</div>
+                    <div class="text-left">
+                        <div class="font-bold text-lg">Uzun Maraton</div>
+                        <div class="text-xs text-gray-400">Rastgele 100 Soru</div>
+                    </div>
+                    <i class="fas fa-chevron-right ml-auto text-gray-300"></i>
+                </button>
+
+                <button onclick="startQuiz('all')" class="menu-btn p-5 rounded-2xl border border-gray-100 shadow-sm flex items-center gap-4 hover:border-gray-800 group">
+                    <div class="w-12 h-12 rounded-full bg-gray-100 text-gray-700 flex items-center justify-center font-bold text-xl group-hover:bg-gray-800 group-hover:text-white transition-colors">
+                        <i class="fas fa-infinity"></i>
+                    </div>
+                    <div class="text-left">
+                        <div class="font-bold text-lg">Tüm Sorular</div>
+                        <div class="text-xs text-gray-400">Havuzdaki her şey (<span id="total-pool-count">...</span>)</div>
+                    </div>
+                    <i class="fas fa-chevron-right ml-auto text-gray-300"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- 2. QUIZ EKRANI -->
+        <div id="quiz-screen" class="absolute inset-0 flex flex-col hidden bg-gray-50">
+            <!-- Progress Bar -->
+            <div class="w-full bg-white h-1.5 shrink-0">
+                <div id="progress-bar" class="bg-blue-600 h-full progress-fill" style="width: 0%"></div>
+            </div>
+
+            <!-- Soru Alanı (Scrollable) -->
+            <div class="flex-1 overflow-y-auto p-4 md:p-8" id="question-area">
+                <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 mb-4 fade-in">
+                    <div class="flex justify-between items-center mb-4">
+                        <span id="question-category" class="bg-blue-50 text-blue-700 text-[10px] md:text-xs font-bold px-2 py-1 rounded uppercase tracking-wider">GENEL</span>
+                        <div class="text-xs text-gray-400 font-bold" id="question-counter">1 / 10</div>
+                    </div>
+                    
+                    <h3 id="question-text" class="text-lg md:text-xl font-bold text-gray-800 leading-relaxed">
+                        Soru yükleniyor...
+                    </h3>
+                </div>
+
+                <div id="options-container" class="space-y-3 pb-20">
+                    <!-- Şıklar Buraya -->
+                </div>
+            </div>
+
+            <!-- Alt Bilgi / Sonraki Butonu -->
+            <div id="quiz-footer" class="bg-white border-t p-4 shrink-0 flex items-center justify-between hidden">
+                <div id="feedback-text" class="text-sm font-medium"></div>
+                <button id="next-btn" onclick="nextQuestion()" class="bg-gray-800 text-white px-6 py-3 rounded-xl font-medium shadow-lg active:scale-95 transition-transform flex items-center gap-2">
+                    Sonraki <i class="fas fa-arrow-right"></i>
+                </button>
+            </div>
+            
+            <!-- Otomatik Geçiş Sayacı (Görsel) -->
+            <div id="auto-timer" class="absolute top-0 left-0 h-1 bg-green-500/50 w-full hidden"></div>
+        </div>
+
+        <!-- 3. SONUÇ EKRANI -->
+        <div id="result-screen" class="absolute inset-0 flex flex-col items-center justify-center p-6 hidden bg-white fade-in text-center">
+            <div class="w-20 h-20 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center text-3xl mb-6 animate-bounce">
+                <i class="fas fa-trophy"></i>
+            </div>
+            <h2 class="text-2xl font-bold text-gray-800 mb-2">Tebrikler, Tamamladın!</h2>
+            <p class="text-gray-500 mb-8">İşte performansın:</p>
+
+            <div class="grid grid-cols-2 gap-4 w-full max-w-xs mb-8">
+                <div class="bg-green-50 p-4 rounded-2xl border border-green-100">
+                    <div class="text-green-600 text-sm font-bold uppercase">Doğru</div>
+                    <div class="text-3xl font-bold text-green-700" id="final-correct">0</div>
+                </div>
+                <div class="bg-red-50 p-4 rounded-2xl border border-red-100">
+                    <div class="text-red-500 text-sm font-bold uppercase">Yanlış</div>
+                    <div class="text-3xl font-bold text-red-700" id="final-wrong">0</div>
+                </div>
+            </div>
+
+            <button onclick="returnToHome()" class="w-full max-w-xs bg-blue-600 text-white py-4 rounded-xl font-bold shadow-lg shadow-blue-200 hover:bg-blue-700 transition">
+                Ana Menüye Dön
+            </button>
+        </div>
+
+    </div>
+
+    <script>
+        // --- DATA PARSING (Önceki koddan) ---
+        // Bu kısım ham veriyi işleyip nesneye çevirir
+        let fullQuestionPool = [];
+        
+        function parseAllData() {
+            if (typeof rawDinler1 === 'undefined' || typeof rawDinler2Questions === 'undefined') {
+                alert("Veri dosyası (data.js) bulunamadı!");
+                return;
+            }
+
+            // Set 1
+            const blocks1 = rawDinler1.trim().split(/\n(?=\d+\.)/g);
+            blocks1.forEach(block => {
+                const match = block.match(/Cevap:\s*([A-E])/i);
+                if (!match) return;
+                const correct = match[1].toUpperCase();
+                const clean = block.replace(/Cevap:\s*[A-E]/i, '').trim();
+                const idxA = clean.search(/\sA\)/);
+                if (idxA !== -1) {
+                    const qText = clean.substring(0, idxA).replace(/^\d+\.\s*/, '').trim();
+                    const opts = [];
+                    let m;
+                    const regex = /([A-E])\)([\s\S]*?)(?=(?:\s[A-E]\))|$)/g;
+                    const tail = clean.substring(idxA);
+                    while ((m = regex.exec(tail)) !== null) opts.push({k:m[1], t:m[2].trim()});
+                    if(opts.length) fullQuestionPool.push({cat:"İnanç Esasları", q:qText, opts:opts, a:correct});
+                }
+            });
+
+            // Set 2
+            const ansKey = {};
+            (rawDinler2Answers.match(/(\d+)-([A-E])/g)||[]).forEach(p=>{const[n,a]=p.split('-');ansKey[parseInt(n)]=a});
+            const blocks2 = rawDinler2Questions.trim().split(/\n(?=\d+\.)/g);
+            blocks2.forEach(block => {
+                const numM = block.match(/^(\d+)\./);
+                if(!numM) return;
+                const qNum = parseInt(numM[1]);
+                if(!ansKey[qNum]) return;
+                const idxA = block.search(/\nA\)/);
+                if(idxA === -1) return;
+                const qText = block.substring(0, idxA).replace(/^\d+\.\s*/, '').trim();
+                const opts = [];
+                let m;
+                const regex = /\n([A-E])\)([\s\S]*?)(?=(?:\n[A-E]\))|$)/g;
+                const tail = block.substring(idxA);
+                while ((m = regex.exec(tail)) !== null) opts.push({k:m[1], t:m[2].trim()});
+                if(opts.length) fullQuestionPool.push({cat:"Dinler Tarihi", q:qText, opts:opts, a:ansKey[qNum]});
+            });
+
+            // Toplam sayıyı güncelle
+            document.getElementById('total-pool-count').innerText = fullQuestionPool.length;
+        }
+
+        // --- OYUN MANTIĞI ---
+
+        let quizQueue = []; // Şu an sorulacak sorular sırası (Nesne listesi)
+        let totalInitialCount = 0; // İlerleme çubuğu için başlangıç sayısı
+        let correctCount = 0;
+        let wrongCount = 0;
+        let currentQ = null; // Şu anki soru nesnesi
+        let isWaiting = false; // Tıklamayı engellemek için
+
+        function shuffle(array) {
+            return array.sort(() => Math.random() - 0.5);
+        }
+
+        function returnToHome() {
+            document.getElementById('start-screen').classList.remove('hidden');
+            document.getElementById('quiz-screen').classList.add('hidden');
+            document.getElementById('result-screen').classList.add('hidden');
+            document.getElementById('header-stats').classList.add('hidden');
+        }
+
+        function startQuiz(count) {
+            if (count === 'all') count = fullQuestionPool.length;
+
+            // 1. Havuzu Karıştır
+            let shuffledPool = shuffle([...fullQuestionPool]);
+            
+            // 2. İstenen kadarını al
+            quizQueue = shuffledPool.slice(0, count);
+            totalInitialCount = count;
+
+            // 3. Değişkenleri Sıfırla
+            correctCount = 0;
+            wrongCount = 0;
+            updateStats();
+
+            // 4. Ekranı Değiştir
+            document.getElementById('start-screen').classList.add('hidden');
+            document.getElementById('result-screen').classList.add('hidden');
+            document.getElementById('quiz-screen').classList.remove('hidden');
+            document.getElementById('header-stats').classList.remove('hidden');
+
+            // 5. İlk soruyu yükle
+            loadNextQuestion();
+        }
+
+        function loadNextQuestion() {
+            // Sıra bitti mi?
+            if (quizQueue.length === 0) {
+                showResults();
+                return;
+            }
+
+            isWaiting = false;
+            document.getElementById('quiz-footer').classList.add('hidden');
+            
+            // Kuyruğun başından soruyu çek (shift)
+            currentQ = quizQueue.shift();
+
+            // UI Güncelle
+            const remaining = quizQueue.length;
+            const progress = ((totalInitialCount - remaining) / totalInitialCount) * 100; // Basit bir ilerleme hesabı
+            // Not: Yanlış cevaplarla queue uzayabilir, bu yüzden progress %100'e doğru garip davranabilir ama öğretici modda kabul edilebilir.
+            // Alternatif: (CorrectCount / InitialTarget) * 100
+            
+            document.getElementById('progress-bar').style.width = `${Math.min(100, (correctCount / totalInitialCount) * 100)}%`;
+            document.getElementById('question-counter').innerText = `Hedef: ${totalInitialCount} | Kalan: ${remaining + 1}`;
+            
+            document.getElementById('question-category').innerText = currentQ.cat;
+            document.getElementById('question-text').innerText = currentQ.q;
+
+            // Şıkları Oluştur
+            const container = document.getElementById('options-container');
+            container.innerHTML = '';
+
+            currentQ.opts.forEach(opt => {
+                const btn = document.createElement('div');
+                btn.className = `option-card p-4 rounded-xl cursor-pointer flex items-center gap-3`;
+                btn.onclick = () => checkAnswer(opt.k, btn);
+                btn.innerHTML = `
+                    <div class="w-8 h-8 rounded-full bg-gray-100 text-gray-500 font-bold flex items-center justify-center shrink-0 border border-gray-200">${opt.k}</div>
+                    <div class="font-medium text-gray-700">${opt.t}</div>
+                `;
+                container.appendChild(btn);
+            });
+
+            // Ekranı yukarı kaydır
+            document.getElementById('question-area').scrollTo(0, 0);
+        }
+
+        function checkAnswer(selectedKey, btnElement) {
+            if (isWaiting) return;
+            isWaiting = true;
+
+            const isCorrect = selectedKey === currentQ.a;
+            const allOptions = document.querySelectorAll('.option-card');
+
+            // Görsel Geri Bildirim
+            allOptions.forEach(opt => {
+                opt.classList.add('disabled'); // Hepsini kilitle
+                const key = opt.querySelector('div').innerText;
+                
+                if (key === currentQ.a) {
+                    opt.classList.add('correct'); // Doğruyu yeşil yap
+                    opt.querySelector('div').innerHTML = '<i class="fas fa-check"></i>';
+                    opt.querySelector('div').classList.add('bg-green-200', 'text-green-700', 'border-green-300');
+                } else if (key === selectedKey && !isCorrect) {
+                    opt.classList.add('wrong'); // Seçilen yanlışsa kırmızı yap
+                    opt.querySelector('div').innerHTML = '<i class="fas fa-times"></i>';
+                    opt.querySelector('div').classList.add('bg-red-200', 'text-red-700', 'border-red-300');
+                }
+            });
+
+            if (isCorrect) {
+                // DOĞRU CEVAP
+                correctCount++;
+                updateStats();
+                
+                // Otomatik Geçiş Animasyonu
+                const timerBar = document.getElementById('auto-timer');
+                timerBar.classList.remove('hidden');
+                timerBar.style.width = '0%';
+                timerBar.style.transition = 'width 1.5s linear';
+                
+                // Reflow hack
+                timerBar.offsetHeight; 
+                timerBar.style.width = '100%';
+
+                setTimeout(() => {
+                    timerBar.classList.add('hidden');
+                    timerBar.style.width = '0%';
+                    timerBar.style.transition = 'none';
+                    loadNextQuestion();
+                }, 1500); // 1.5 saniye sonra geç
+
+            } else {
+                // YANLIŞ CEVAP
+                wrongCount++;
+                updateStats();
+
+                // Soruyu tekrar listeye ekle (Öğretici Mod: 3 soru sonrasına ekle)
+                // Eğer liste 3'ten kısaysa sonuna ekle.
+                const insertIndex = Math.min(quizQueue.length, 3);
+                quizQueue.splice(insertIndex, 0, currentQ);
+
+                // Alt bilgiyi göster (Manuel geçiş)
+                const footer = document.getElementById('quiz-footer');
+                footer.classList.remove('hidden');
+                document.getElementById('feedback-text').innerHTML = `<span class="text-red-500 font-bold">Yanlış!</span> Bu soruyu birazdan tekrar soracağım.`;
+                
+                // Kullanıcı inceleyip "Sonraki"ye basacak
+            }
+        }
+
+        function nextQuestion() {
+            // Sadece yanlış yapıldığında manuel basılır
+            loadNextQuestion();
+        }
+
+        function updateStats() {
+            document.getElementById('score-correct').innerText = correctCount;
+            document.getElementById('score-wrong').innerText = wrongCount;
+        }
+
+        function showResults() {
+            document.getElementById('quiz-screen').classList.add('hidden');
+            document.getElementById('result-screen').classList.remove('hidden');
+            document.getElementById('header-stats').classList.add('hidden');
+
+            document.getElementById('final-correct').innerText = correctCount;
+            document.getElementById('final-wrong').innerText = wrongCount;
+        }
+
+        // Başlat
+        window.onload = parseAllData;
+
+    </script>
+</body>
+</html>
