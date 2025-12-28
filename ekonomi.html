@@ -1,0 +1,1531 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Türkiye Ekonomisi (1939-1980)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; background: #f8fafc; -webkit-tap-highlight-color: transparent; }
+        .fade-in { animation: fadeIn 0.3s ease-in; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .option-card { transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); border: 2px solid transparent; background: white; position: relative; overflow: hidden; }
+        @media (hover: hover) { .option-card:hover:not(.disabled) { border-color: #0ea5e9; background-color: #f0f9ff; transform: translateY(-2px); box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05); } }
+        .option-card:active:not(.disabled) { transform: scale(0.98); background-color: #f0f9ff; }
+        .option-card.correct { background-color: #f0fdf4 !important; border-color: #22c55e !important; color: #14532d; }
+        .option-card.wrong { background-color: #fef2f2 !important; border-color: #ef4444 !important; color: #7f1d1d; }
+        .disabled { pointer-events: none; }
+        .progress-fill { transition: width 0.5s ease-out; }
+        .menu-btn { background: white; transition: transform 0.2s, box-shadow 0.2s; }
+        .menu-btn:active { transform: scale(0.96); }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
+    </style>
+</head>
+<body class="h-screen flex flex-col text-slate-800 overflow-hidden">
+
+    <!-- DATA SECTION -->
+    <script>
+        // PDF'ten çıkarılan HAM METİN (Başına \n eklenerek parsing garantilendi)
+        const rawEkonomiQuestions = `
+1. I. Dünya Savaşı ve II. Dünya Savaşı sürecinde Türkiye'nin ekonomi politikası nasıl değerlendirilebilir?
+A) Liberal ekonomi politikası
+B) Milli müdafaa ekonomisi
+C) Serbest piyasa ekonomisi
+D) Karma ekonomi politikası
+E) İhracata dayalı ekonomi
+
+2. 1939-1945 yılları Türkiye ekonomisi açısından nasıl değerlendirilmektedir?
+A) Hızlı büyüme yılları
+B) İktisadi gelişmelerin durduğu yıllar
+C) Sanayileşme atılımı yılları
+D) Tarımsal kalkınma dönemi
+E) İhracat patlaması dönemi
+
+3. Celal Bayar hangi tarihte başbakanlık görevinden istifa etmiştir?
+A) 25 Ocak 1938
+B) 25 Ocak 1939
+C) 25 Ocak 1940
+D) 25 Ocak 1941
+E) 25 Ocak 1942
+
+4. Celal Bayar'dan sonra hükümeti kurmakla kim görevlendirilmiştir?
+A) İsmet İnönü
+B) Şükrü Saraçoğlu
+C) Dr. Refik Saydam
+D) Adnan Menderes
+E) Fevzi Çakmak
+
+5. Dr. Refik Saydam iktisadi çalışmalarını hangi ilkeye dayandırmıştır?
+A) Liberalizm
+B) Devletçilik
+C) Milliyetçilik
+D) Halkçılık
+E) Cumhuriyetçilik
+
+6. TBMM'de denetimi sağlamak için parti içinde kurulan grup hangisidir?
+A) Bağımsız Grup
+B) Müstakil Grup
+C) Denetim Grubu
+D) Muhalefet Grubu
+E) İktisat Grubu
+
+7. Cumhuriyet ideolojisini köylere taşımak için Halkevleri bünyesinde ne kurulmuştur?
+A) Köy okulları
+B) Halkodaları
+C) Köy kooperatifleri
+D) Tarım birlikleri
+E) Kültür merkezleri
+
+8. Dr. Refik Saydam hangi tarihte vefat etmiştir?
+A) 7 Temmuz 1940
+B) 7 Temmuz 1941
+C) 7 Temmuz 1942
+D) 7 Temmuz 1943
+E) 7 Temmuz 1944
+
+9. Dr. Refik Saydam'dan sonra Başbakanlığa kim getirilmiştir?
+A) Celal Bayar
+B) İsmet İnönü
+C) Şükrü Saraçoğlu
+D) Nihat Erim
+E) Adnan Menderes
+
+10. 1944'te Saraçoğlu Hükümeti için yapılan güven oylamasında kaç red oyu çıkmıştır?
+A) 47
+B) 57
+C) 67
+D) 77
+E) 87
+
+11. 1944 güven oylamasında kabul oyu sayısı kaçtır?
+A) 201
+B) 221
+C) 241
+D) 251
+E) 261
+
+12. İkinci Dünya Savaşı yıllarında yaklaşık kaç kişi askere alınmıştır?
+A) Yarım milyon civarında
+B) Bir milyon civarında
+C) İki milyon civarında
+D) Üç milyon civarında
+E) Dört milyon civarında
+
+13. Türkiye'nin bölgesel ittifak amacıyla kurduğu paktlardan biri aşağıdakilerden hangisidir?
+A) Varşova Paktı
+B) NATO
+C) Sadabad Paktı
+D) Bağdat Paktı
+E) Atlantik Paktı
+
+14. 1939'da Dışişleri Bakanı Saraçoğlu hangi ülkeye ziyarette bulunmuştur?
+A) Almanya
+B) İngiltere
+C) Fransa
+D) Sovyetler Birliği (Moskova)
+E) ABD
+
+15. Moskova görüşmelerini sonuçsuz bırakan SSCB istekleri arasında hangisi yer almaktadır?
+A) Türkiye'nin NATO'ya girmesi
+B) Montrö Boğazlar Sözleşmesi'nin değiştirilmesi
+C) Türkiye'nin savaşa girmesi
+D) Doğu Anadolu'nun ilhakı
+E) Kıbrıs'ın bağımsızlığı
+
+16. 19 Ekim 1939'da İngiltere, Fransa ve Türkiye arasında imzalanan antlaşma hangisidir?
+A) İkili İttifak Antlaşması
+B) Üçlü İttifak Antlaşması
+C) Dörtlü Pakt
+D) Karşılıklı Yardım Antlaşması
+E) Savunma İşbirliği Antlaşması
+
+17. Üçlü İttifak Antlaşması ile Türkiye'ye savaş malzemesi için ne kadar sterlin sağlanacaktı?
+A) 15 milyon sterlin
+B) 20 milyon sterlin
+C) 25 milyon sterlin
+D) 30 milyon sterlin
+E) 35 milyon sterlin
+
+18. Üçlü İttifak Antlaşması ile Türkiye'ye ne kadar değerinde külçe altın verilecekti?
+A) 10 milyon sterlin
+B) 12 milyon sterlin
+C) 14 milyon sterlin
+D) 16 milyon sterlin
+E) 18 milyon sterlin
+
+19. Üçlü İttifak Antlaşması ile Türkiye'ye sağlanan kredi imkânı ne kadardır?
+A) 2,5 milyon sterlin
+B) 3 milyon sterlin
+C) 3,5 milyon sterlin
+D) 4 milyon sterlin
+E) 4,5 milyon sterlin
+
+20. 1941'de Türkiye hangi ülke ile Saldırmazlık Antlaşması imzalamıştır?
+A) İngiltere
+B) Fransa
+C) Almanya
+D) İtalya
+E) Japonya
+
+21. ABD'nin Türkiye'nin yararlanmasına izin verdiği yasa hangisidir?
+A) Marshall Planı
+B) Truman Doktrini
+C) Ödünç Verme ve Kiralama Yasası
+D) Monroe Doktrini
+E) Eisenhower Doktrini
+
+22. Almanların hangi yenilgisi Müttefiklerin Türkiye'yi savaşa sokma girişimlerini artırmıştır?
+A) Berlin Savaşı
+B) Stalingrad başarısızlığı
+C) Normandiya çıkarması
+D) El Alamein Savaşı
+E) Kursk Savaşı
+
+23. I. Kahire Konferansı hangi tarihte yapılmıştır?
+A) 5 Kasım 1942
+B) 5 Kasım 1943
+C) 5 Kasım 1944
+D) 5 Kasım 1945
+E) 5 Kasım 1946
+
+24. Tahran Konferansı hangi tarihler arasında yapılmıştır?
+A) 28 Kasım - 1 Aralık 1942
+B) 28 Kasım - 1 Aralık 1943
+C) 28 Kasım 1 Aralık 1944
+D) 28 Kasım - 1 Aralık 1945
+E) 28 Kasım - 1 Aralık 1946
+
+25. Türkiye'nin müttefiklerle ilişkisini gerginleştiren madde hangisidir?
+A) Demir satışı
+B) Krom satışı
+C) Bakır satışı
+D) Kömür satışı
+E) Petrol satışı
+
+26. Yalta Konferansı hangi tarihler arasında yapılmıştır?
+A) 4-11 Şubat 1944
+B) 4-11 Şubat 1945
+C) 4-11 Şubat 1946
+D) 4-11 Şubat 1947
+E) 4-11 Şubat 1948
+
+27. Türkiye BM Konferansı'na kurucu üye olmak için hangi ülkelere savaş ilan etmiştir?
+A) Almanya ve İtalya
+B) Almanya ve Japonya
+C) İtalya ve Japonya
+D) Almanya, İtalya ve Japonya
+E) Sadece Almanya
+
+28. 1940 yılında savunma harcamaları genel bütçenin yüzde kaçını oluşturmuştur?
+A) %43
+B) %48
+C) %53
+D) %58
+E) %63
+
+29. 1941 yılında savunma harcamalarının genel bütçeye oranı yüzde kaçtır?
+A) %45
+B) %50
+C) %55
+D) %60
+E) %65
+
+30. 1944 yılında savunma harcamalarının genel bütçeye oranı yüzde kaçtır?
+A) %41
+B) %46
+C) %51
+D) %56
+E) %61
+
+31. Savaş döneminde şehirlerde yaşanan beslenme sorunu hangi uygulamaya yol açmıştır?
+A) Gıda yardımı
+B) Ekmek karnesi uygulaması
+C) Fiyat kontrolü
+D) İthalat serbestisi
+E) Tarım teşviki
+
+32. Savaş döneminde ekonomik tedbirler beraberinde aşağıdakilerden hangisini doğurmuştur?
+A) Ekonomik büyüme
+B) Soygun, karaborsacılık ve vurgunculuk
+C) Sanayileşme
+D) İhracat artışı
+E) Yabancı yatırım
+
+33. Bu dönemde ekonomik politikanın temel hedefi ne olmuştur?
+A) Büyüme ve gelişme
+B) Fiyat artışını önleme ve karaborsayla mücadele
+C) İhracatı artırma
+D) Sanayileşme
+E) Tarımsal kalkınma
+
+34. Milli Korunma Kanunu hangi tarihte çıkarılmıştır?
+A) 18 Ocak 1939
+B) 18 Ocak 1940
+C) 18 Ocak 1941
+D) 18 Ocak 1942
+E) 18 Ocak 1943
+
+35. Milli Korunma Kanunu kapsamında İstanbul'da kurulan kurum hangisidir?
+A) Sanayi Ofisi
+B) Ticaret Ofisi
+C) Tarım Ofisi
+D) İhracat Ofisi
+E) Maliye Ofisi
+
+36. Devletin özel girişim üzerinde denetimini sağlamak için kurulan müsteşarlık hangisidir?
+A) Ticaret Müsteşarlığı
+B) Sanayi Müsteşarlığı
+C) İaşe Müsteşarlığı
+D) Maliye Müsteşarlığı
+E) Tarım Müsteşarlığı
+
+37. Savaş döneminde hangi ürünler karneye bağlanmıştır?
+A) Buğday ve şeker
+B) Buğday ve kömür
+C) Şeker ve tuz
+D) Un ve yağ
+E) Ekmek ve süt
+
+38. Saydam döneminde yapımı yasaklanan gıda ürünleri hangileridir?
+A) Ekmek ve benzeri ürünler
+B) Pasta ve benzeri unlu mamuller
+C) Şeker ve tatlılar
+D) Et ürünleri
+E) Süt ürünleri
+
+39. Saraçoğlu Hükümeti'nin İaşe Müsteşarlığı yerine getirdiği uygulama hangisidir?
+A) %15 kararı
+B) %20 kararı
+C) %25 kararı
+D) %30 kararı
+E) %35 kararı
+
+40. %25 kararına göre devlet neyi peşin ödeyerek satın alacaktı?
+A) Üretim miktarının %25'ini
+B) Tüm üretimi
+C) Üretim miktarının yarısını
+D) Sadece buğdayı
+E) Sadece kömürü
+
+41. Savaş döneminde buğdayın Konya'daki fiyatı ne kadardı?
+A) 20 kuruş
+B) 30 kuruş
+C) 40 kuruş
+D) 50 kuruş
+E) 60 kuruş
+
+42. Savaş döneminde buğdayın İstanbul'daki kaçak fiyatı ne kadardı?
+A) 100 kuruş
+B) 150 kuruş
+C) 200 kuruş
+D) 250 kuruş
+E) 300 kuruş
+
+43. Varlık Vergisi Kanunu hangi tarihte çıkarılmıştır?
+A) 12 Kasım 1940
+B) 12 Kasım 1941
+C) 12 Kasım 1942
+D) 12 Kasım 1943
+E) 12 Kasım 1944
+
+44. Varlık Vergisi ile toplam ne kadar vergi tahsil edilmiştir?
+A) 215.000.000 lira
+B) 265.000.000 lira
+C) 315.000.000 lira
+D) 365.000.000 lira
+E) 415.000.000 lira
+
+45. Toprak Mahsulleri Vergisi Kanunu hangi yılda çıkarılmıştır?
+A) 1942
+B) 1943
+C) 1944
+D) 1945
+E) 1946
+
+46. Toprak Mahsulleri Vergisi'nde tarımsal üretimden alınan vergi oranı yüzde kaçtır?
+A) %5
+B) %8
+C) %10
+D) %12
+E) %15
+
+47. Milli Korunma Kanunu ne zamana kadar yürürlükte kalmıştır?
+A) 15 Haziran 1950
+B) 15 Haziran 1955
+C) 15 Haziran 1960
+D) 15 Haziran 1965
+E) 15 Haziran 1970
+
+48. Milli Korunma Kanunu'na göre mesai saatleri günde en fazla kaç saat uzayabilecekti?
+A) 1 saat
+B) 2 saat
+C) 3 saat
+D) 4 saat
+E) 5 saat
+
+49. Milli Korunma Kanunu döneminde iş kazalarının yarısı hangi bölgede olmuştur?
+A) İstanbul bölgesi
+B) Karabük bölgesi
+C) Zonguldak bölgesi
+D) Ankara bölgesi
+E) İzmir bölgesi
+
+50. Varlık Vergisi hangi tarihte kaldırılmıştır?
+A) 15 Mart 1943
+B) 15 Mart 1944
+C) 15 Mart 1945
+D) 15 Mart 1946
+E) 15 Mart 1947
+
+51. Varlık Vergisi'nde Müslümanların kazanç miktarının kaçta kaçı vergi olarak alınacaktı?
+A) 1/4
+B) 1/6
+C) 1/8
+D) 1/10
+E) 1/12
+
+52. Varlık Vergisi'nde Gayrimüslimlerin kazanç miktarının kaçta kaçı vergi olarak alınacaktı?
+A) 1/4
+B) 1/3
+C) 1/2
+D) 2/3
+E) 3/4
+
+53. Varlık Vergisi'nde 'Dönmeler' kazançlarının kaçta kaçını vergi olarak verecekti?
+A) 1/8
+B) 1/6
+C) 1/4
+D) 1/3
+E) 1/2
+
+54. Varlık Vergisi mükelleflerine vergi tebliğinden sonra borçlarını ödemek için kaç gün süre verilmişti?
+A) 7 gün
+B) 10 gün
+C) 15 gün
+D) 20 gün
+E) 30 gün
+
+55. Vergi borcunu bir ay içinde ödeyemeyenler ne yapacaktı?
+A) Hapis cezası alacaktı
+B) Malları haczedilecekti
+C) Borçlarını ödeyinceye kadar genel hizmetlerde çalışacaktı
+D) Sürgüne gönderilecekti
+E) Para cezası ödemek zorunda kalacaktı
+
+56. Toprak Mahsulleri Kanunu hangi tarihte çıkarılmıştır?
+A) 21 Mart 1942
+B) 21 Mart 1943
+C) 21 Mart 1944
+D) 21 Mart 1945
+E) 21 Mart 1946
+
+57. Toprak Mahsulleri Kanunu'nda vergi oranı yüzde kaçtır?
+A) %5
+B) %8
+C) %10
+D) %12
+E) %15
+
+58. 1940 yılında nüfusun yüzde kaçı okur-yazar değildi?
+A) %65,5
+B) %70,5
+C) %75,5
+D) %80,5
+E) %85,5
+
+59. 1950 yılında nüfusun yüzde kaçı okur-yazar değildi?
+A) %59,8
+B) %64,8
+C) %69,8
+D) %74,8
+E) %79,8
+
+60. 1940 yılında nüfusun yüzde kaçı şehirde yaşıyordu?
+A) %14,4
+B) %19,4
+C) %24,4
+D) %29,4
+E) %34,4
+
+61. 1940 yılında nüfusun yüzde kaçı kırsal alanda yaşıyordu?
+A) %65,6
+B) %70,6
+C) %75,6
+D) %80,6
+E) %85,6
+
+62. Bu dönemde tarım sektöründe en önemli hamle hangisidir?
+A) Ziraat Bankası'nın kurulması
+B) Toprak Mahsulleri Ofisi'nin kurulması
+C) Tarım Bakanlığı'nın kurulması
+D) Çiftçi Birliklerinin kurulması
+E) Tarım Kooperatiflerinin kurulması
+
+63. Tarımda en büyük düşüş hangi yıllar arasında yaşanmıştır?
+A) 1940-1941
+B) 1941-1942
+C) 1942-1943
+D) 1943-1944
+E) 1944-1945
+
+64. Savaş döneminde zorunlu ihtiyaç olarak kabul edilen ürünler hangileridir?
+A) Demir, çelik, makine
+B) Kumaş, cam, şeker
+C) Krom, linyit, bakır
+D) Silah, mermi, barut
+E) Otomobil, traktör, kamyon
+
+65. Savaş döneminde stratejik öneme sahip madenler hangileridir?
+A) Demir ve bakır
+B) Krom ve linyit
+C) Altın ve gümüş
+D) Kurşun ve çinko
+E) Bor ve magnezyum
+
+66. Krom ve linyit gibi madenlere duyulan ihtiyaç hangi şehrin gelişmesine ortam sağlamıştır?
+A) Zonguldak
+B) Karabük
+C) Ereğli
+D) İskenderun
+E) Kırıkkale
+
+67. Muamele Vergisi Kanunu hangi tarihte çıkarılmıştır?
+A) 4 Mayıs 1939
+B) 4 Mayıs 1940
+C) 4 Mayıs 1941
+D) 4 Mayıs 1942
+E) 4 Mayıs 1943
+
+68. Dış ticarette takas anlaşmalarının yapılmasının sebebi nedir?
+A) İhracatı artırmak
+B) Kısıtlamalardan dolayı
+C) Döviz kazanmak
+D) Sanayileşmek
+E) Borç ödemek
+
+69. Takas Limited Şirketi hangi yılda kurulmuştur?
+A) 1937
+B) 1938
+C) 1939
+D) 1940
+E) 1941
+
+70. Türkiye'nin dış ticaret hacmi hangi yılda doruk noktasına ulaşmıştır?
+A) 1941
+B) 1942
+C) 1943
+D) 1944
+E) 1945
+
+71. Bretton Woods Para ve Finans Konferansı hangi yılda toplanmıştır?
+A) 1942
+B) 1943
+C) 1944
+D) 1945
+E) 1946
+
+72. Bretton Woods Konferansı'nda kurulan uluslararası kuruluşlar hangileridir?
+A) BM ve NATO
+B) IMF ve IBRD (Dünya Bankası)
+C) OECD ve AB
+D) WTO ve FAO
+E) UNESCO ve ILO
+
+73. Keynesyen iktisat teorisine göre ekonomide en önemli taşıyıcı güç hangisidir?
+A) Arz
+B) Üretim
+C) Toplam talep
+D) Tasarruf
+E) Yatırım
+
+74. Klasik iktisat teorisine göre ekonomide öncelikli olan nedir?
+A) Talep
+B) Arz (üretim)
+C) Tüketim
+D) İhracat
+E) İthalat
+
+75. 1947'de ABD'nin Türkiye ve Yunanistan için kabul ettiği yardım paketi toplam ne kadardı?
+A) 200 milyon dolar
+B) 300 milyon dolar
+C) 400 milyon dolar
+D) 500 milyon dolar
+E) 600 milyon dolar
+
+76. 1947 ABD yardım paketinden Türkiye'ye ne kadar ayrılmıştır?
+A) 50 milyon dolar
+B) 100 milyon dolar
+C) 150 milyon dolar
+D) 200 milyon dolar
+E) 250 milyon dolar
+
+77. 1947 ABD yardım paketinden Yunanistan'a ne kadar ayrılmıştır?
+A) 200 milyon dolar
+B) 250 milyon dolar
+C) 300 milyon dolar
+D) 350 milyon dolar
+E) 400 milyon dolar
+
+78. Marshall yardım programından yararlanabilmenin koşullarından biri hangisidir?
+A) NATO'ya üye olmak
+B) OECD'ye (OEEC) üye olmak
+C) BM'ye üye olmak
+D) Avrupa Konseyi'ne üye olmak
+E) WTO'ya üye olmak
+
+79. Marshall Planı'nın Türkiye için temel hedefi neydi?
+A) Sanayileşme
+B) Tarımsal üretim kapasitesinin artırılması
+C) Askeri güçlenme
+D) Eğitim reformu
+E) Altyapı yatırımları
+
+80. Truman Doktrini hangi amaçla oluşturulmuştur?
+A) Ekonomik kalkınma
+B) Soğuk savaştan dolayı askeri harcamalar
+C) Tarımsal destek
+D) Eğitim yardımı
+E) Sağlık hizmetleri
+
+81. Marshall Yardımları hangi kuruluş aracılığıyla dağıtılacaktı?
+A) NATO
+B) IMF
+C) Avrupa Ekonomik İşbirliği Teşkilatı (OEEC)
+D) Dünya Bankası
+E) BM
+
+82. Türkiye IMF'ye hangi tarihte üye olmuştur?
+A) 14 Şubat 1945
+B) 14 Şubat 1946
+C) 14 Şubat 1947
+D) 14 Şubat 1948
+E) 14 Şubat 1949
+
+83. Devalüasyonun (Türk lirasının değerinin düşürülmesi) amacı nedir?
+A) İthalatı artırma, ihracatı azaltma
+B) İhracatı artırma, ithalatı azaltma
+C) Hem ihracatı hem ithalatı artırma
+D) Hem ihracatı hem ithalatı azaltma
+E) Dış borçları azaltma
+
+84. İthalat hangi yılda en yüksek düzeye ulaşmıştır?
+A) 1950
+B) 1951
+C) 1952
+D) 1953
+E) 1954
+
+85. İhracat hangi yılda en yüksek düzeye ulaşmıştır?
+A) 1950
+B) 1951
+C) 1952
+D) 1953
+E) 1954
+
+86. İthalat ve ihracat hangi yılda en düşük seviyeye inmiştir?
+A) 1955
+B) 1956
+C) 1957
+D) 1958
+E) 1959
+
+87. Türkiye Cumhuriyeti'nin ithalatının büyük çoğunluğunu ne oluşturmaktadır?
+A) Tüketim malları
+B) Yatırım malları ve hammadde
+C) Lüks mallar
+D) Gıda maddeleri
+E) Askeri malzeme
+
+88. Türkiye hangi yıla kadar ithal etmek zorunda olduğu ürünleri içeride üretmeyi denemiştir?
+A) 1970
+B) 1975
+C) 1980
+D) 1985
+E) 1990
+
+89. 1948'de Türkiye'ye karayollarını ve Bayındırlık Bakanlığı altında teşkilatlanma önerisinde bulunan kişi kimdir?
+A) James M. Barker
+B) H.G. Hilts
+C) Fritz Neumark
+D) Thornburg
+E) Tinbergen
+
+90. 1949'da devlet personel yapısı ve maliye üzerine rapor hazırlayan iktisatçı kimdir?
+A) H.G. Hilts
+B) Fritz Neumark
+C) James M. Barker
+D) Thornburg
+E) Keynes
+
+91. 1949'da yatırımların hangi alanlarda yapılması gerektiğini raporlayan kişi kimdir?
+A) Fritz Neumark
+B) H.G. Hilts
+C) James M. Barker
+D) Thornburg
+E) Tinbergen
+
+92. 'Türkiye'nin tarımla kalkınması gerektiğini, ağır sanayiye el atmasının cinayet olacağını' söyleyen uzman kimdir?
+A) Fritz Neumark
+B) H.G. Hilts
+C) James M. Barker
+D) Thornburg
+E) Tinbergen
+
+93. İvedi Sanayi Planı hangi yılda hazırlanmıştır?
+A) 1944
+B) 1945
+C) 1946
+D) 1947
+E) 1948
+
+94. İvedi Sanayi Planı'nı kim hazırlatmıştır?
+A) Celal Bayar
+B) Dr. Refik Saydam
+C) Başbakan Saraçoğlu
+D) Adnan Menderes
+E) İsmet İnönü
+
+95. İvedi Sanayi Planı'nı hazırlayan isimler kimlerdir?
+A) Keynes ve Tinbergen
+B) Şevket Süreyya Aydemir ve İsmail Hüsrev Tökin
+C) Fritz Neumark ve Thornburg
+D) H.G. Hilts ve Barker
+E) Marshall ve Truman
+
+96. İvedi Sanayi Planı'nda hangi kurumların aracılığı öngörülmüştür?
+A) Ziraat Bankası ve Halk Bankası
+B) Etibank ve Sümerbank
+C) İş Bankası ve Vakıflar Bankası
+D) Merkez Bankası ve Kalkınma Bankası
+E) Emlak Bankası ve Denizbank
+
+97. Demokrat Parti iktidarını 1950 öncesinden ayıran temel özellik nedir?
+A) Sanayileşmeye öncelik vermesi
+B) Tarım sektörünü ön planda tutması
+C) Devletçiliği benimsemesi
+D) Planlama yapması
+E) İhracata yönelmesi
+
+98. Demokrat Parti'ye göre ekonominin kötü olmasının sebebi neydi?
+A) Savaş
+B) Devletçilik
+C) Dış borçlar
+D) Tarım politikası
+E) Enflasyon
+
+99. 1950-52 arasında tarımsal ürünlerin yurtdışı fiyatlarının yüksek olmasının sebebi nedir?
+A) Marshall Yardımları
+B) Kore Savaşı
+C) Soğuk Savaş
+D) Petrol krizi
+E) Dünya Savaşı
+
+100. DP döneminde Merkez Bankası kaynaklarının yüzde kaçı tarım politikası için kullanılmıştır?
+A) %63
+B) %73
+C) %83
+D) %93
+E) %53
+
+101. DP döneminde Merkez Bankası kaynaklarının yüzde kaçı KİT'ler için kullanılmıştır?
+A) %21
+B) %31
+C) %41
+D) %51
+E) %61
+
+102. 1953'te kurulan bankalar hangileridir?
+A) Şekerbank ve Vakıflar Bankası
+B) İstanbul Bankası ve Demirbank
+C) İşçi Kredi Bankası ve Pamukbank
+D) Çay Bank ve Öğretmenler Bankası
+E) Ziraat Bankası ve Halk Bankası
+
+103. 1954'te kurulan bankalar hangileridir?
+A) İstanbul Bankası ve Demirbank
+B) İşçi Kredi Bankası, Şekerbank ve Vakıflar Bankası
+C) Pamukbank ve Çay Bank
+D) Öğretmenler Bankası
+E) Ziraat Bankası
+
+104. Pamukbank hangi yılda kurulmuştur?
+A) 1953
+B) 1954
+C) 1955
+D) 1956
+E) 1957
+
+105. Çay Bank hangi yılda kurulmuştur?
+A) 1955
+B) 1956
+C) 1957
+D) 1958
+E) 1959
+
+106. Öğretmenler Bankası hangi yılda kurulmuştur?
+A) 1956
+B) 1957
+C) 1958
+D) 1959
+E) 1960
+
+107. 1955'te yaşanan sıkıntılar arasında hangisi yoktur?
+A) Şeker kıtlığı
+B) Kağıt sıkıntısı
+C) Kahve, çay, ilaç sıkıntıları
+D) Petrol sıkıntısı
+E) Otomobil ithalatının sınırlandırılması
+
+108. 1946-1953 döneminin genel özellikleri arasında hangisi yer almaz?
+A) Dış dengeye dayalı
+B) İthalatın serbestleştiği ve artırıldığı
+C) Dış açıkların kronikleştiği
+D) Sanayileşmenin hızlandığı
+E) Dış yardım ve kredi yardımları ile ayakta kalan ekonomik yapı
+
+109. OPEC (Petrol İhraç Eden Ülkeler Örgütü) ne zaman kurulmuştur?
+A) Eylül 1958
+B) Eylül 1959
+C) Eylül 1960
+D) Eylül 1961
+E) Eylül 1962
+
+110. 'Yedi kız kardeş' olarak anılan büyük petrol şirketleri arasında hangisi yoktur?
+A) Anglo-Persian Oil Company (BP)
+B) Gulf Oil
+C) Royal Dutch Shell
+D) OPEC
+E) Texaco
+
+111. OPEC'in petrol ambargosu uyguladığı ülkeler hangileridir?
+A) İngiltere ve Fransa
+B) ABD ve Hollanda
+C) Almanya ve İtalya
+D) Japonya ve Güney Kore
+E) Kanada ve Avustralya
+
+112. Petrol krizine karşı nükleer enerji kullanan ülke hangisidir?
+A) İngiltere
+B) Almanya
+C) Fransa
+D) İtalya
+E) İspanya
+
+113. 1960-1980 arasında Türkiye'de kaç hükümet görev yapmıştır?
+A) 10
+B) 15
+C) 20
+D) 25
+E) 30
+
+114. İrlanda'daki terör örgütü hangisidir?
+A) ETA
+B) 17 Kasım
+C) IRA
+D) ASALA
+E) RAF
+
+115. İspanya'daki terör örgütü hangisidir?
+A) IRA
+B) ETA
+C) 17 Kasım
+D) ASALA
+E) RAF
+
+116. Yunanistan'daki terör örgütü hangisidir?
+A) IRA
+B) ETA
+C) 17 Kasım
+D) ASALA
+E) RAF
+
+117. 1961 Anayasası'nın hangi maddesinde kalkınma planı yapma görevi devlete verilmiştir?
+A) 31. madde
+B) 41. madde
+C) 51. madde
+D) 61. madde
+E) 71. madde
+
+118. 1961 Anayasası'nın hangi maddesinde DPT'nin planları yapacağı belirtilmiştir?
+A) 109. madde
+B) 119. madde
+C) 129. madde
+D) 139. madde
+E) 149. madde
+
+119. İlk Beş Yıllık Kalkınma Planı hangi yılda uygulamaya konulmuştur?
+A) 1960
+B) 1961
+C) 1962
+D) 1963
+E) 1964
+
+120. 1. Beş Yıllık Kalkınma Planı hangi yılları kapsar?
+A) 1960-1964
+B) 1961-1965
+C) 1962-1966
+D) 1963-1967
+E) 1964-1968
+
+121. 2. Beş Yıllık Kalkınma Planı hangi yılları kapsar?
+A) 1965-1969
+B) 1966-1970
+C) 1967-1971
+D) 1968-1972
+E) 1969-1973
+
+122. 3. Beş Yıllık Kalkınma Planı hangi yılları kapsar?
+A) 1970-1974
+B) 1971-1975
+C) 1972-1976
+D) 1973-1977
+E) 1974-1978
+
+123. Koruyucu dış ticaret politikasında hangi yöntemler kullanılır?
+A) Serbest ticaret ve düşük vergiler
+B) Gümrük vergileri ve kota uygulaması
+C) Devalüasyon ve revalüasyon
+D) Takas ve kliring
+E) İhracat teşvikleri
+
+124. 1977 öncesinde Türkiye'nin son 15 yılda ortalama büyüme hızı en az yüzde kaçtır?
+A) %5
+B) %6
+C) %7
+D) %8
+E) %9
+
+125. BM kapsamında 'Uyuşturucu Maddelere Dair Tek Sözleşme' hangi yılda imzalanmıştır?
+A) 1959
+B) 1960
+C) 1961
+D) 1962
+E) 1963
+
+126. 1968'de ABD'de başkan seçilen ve Türkiye'den haşhaş ekiminin durdurulmasını isteyen kişi kimdir?
+A) John F. Kennedy
+B) Lyndon B. Johnson
+C) Richard Nixon
+D) Gerald Ford
+E) Jimmy Carter
+
+127. Türkiye için ekonomik ambargo uygulama fikrini ortaya atan ABD Adalet Bakanı kimdir?
+A) Robert Kennedy
+B) John Mitchell
+C) William Rogers
+D) Henry Kissinger
+E) Cyrus Vance
+
+128. 12 Mart 1971 muhtırasından sonra kurulan hükümetin başbakanı kimdir?
+A) Süleyman Demirel
+B) Bülent Ecevit
+C) Nihat Erim
+D) Ferit Melen
+E) Naim Talu
+
+129. 1 Temmuz 1974'te kaç ilde haşhaş üretimine onay verilmiştir?
+A) 5
+B) 6
+C) 7
+D) 8
+E) 9
+
+130. ABD, Türkiye'ye gönderilen tüm askeri ve ekonomik yardımları hangi tarihte askıya almıştır?
+A) 16 Temmuz 1973
+B) 16 Temmuz 1974
+C) 16 Temmuz 1975
+D) 16 Temmuz 1976
+E) 16 Temmuz 1977
+
+131. Türkiye'nin Kıbrıs'a askeri harekât düzenlediği tarihler hangileridir?
+A) 20 Temmuz ve 14 Ağustos 1973
+B) 20 Temmuz ve 14 Ağustos 1974
+C) 20 Temmuz ve 14 Ağustos 1975
+D) 20 Temmuz ve 14 Ağustos 1976
+E) 20 Temmuz ve 14 Ağustos 1977
+
+132. 1963'te 'Kanlı Noel' olayında kaç Kıbrıs Türkü katledilmiştir?
+A) 164
+B) 264
+C) 364
+D) 464
+E) 564
+
+133. 1963'te Kanlı Noel'de kaç Kıbrıs Türkü göçe zorlanmıştır?
+A) 15.000
+B) 20.000
+C) 25.000
+D) 30.000
+E) 35.000
+
+134. 1963 Kıbrıs olaylarında EOKA'yı kontrol eden kişi kimdir?
+A) Makarios
+B) Nikol Sampson
+C) Grivas
+D) Clerides
+E) Papadopoulos
+
+135. Amerikan Kongresi Türkiye'ye silah ambargosu kararını hangi tarihte almıştır?
+A) 5 Şubat 1974
+B) 5 Şubat 1975
+C) 5 Şubat 1976
+D) 5 Şubat 1977
+E) 5 Şubat 1978
+
+136. Darbe sonrası başlayan 'Alyans kampanyası' neyi içermektedir?
+A) Altın bağışı
+B) Evlilik yüzüklerinin devlete hediye edilmesi
+C) Para bağışı
+D) Arazi bağışı
+E) Mücevher bağışı
+
+137. 1961-73 arasında Batı Avrupa ülkelerine giden Türk vatandaşı sayısı yaklaşık kaçtır?
+A) 500.000- 1 milyon
+B) 1 milyon 1,5 milyon
+C) 1,5 - 2 milyon
+D) 2-2,5 milyon
+E) 2,5 - 3 milyon
+
+138. 1970'li yılların sonunda kaç ayrı borç erteleme antlaşması yapılmıştır?
+A) 1
+B) 2
+C) 3
+D) 4
+E) 5
+
+139. 1970'li yılların sonunda ertelenen toplam borç miktarı ne kadardır?
+A) 3,5 milyar dolar
+B) 4,5 milyar dolar
+C) 5,5 milyar dolar
+D) 6,5 milyar dolar
+E) 7,5 milyar dolar
+
+140. OECD içinde 'Türkiye'nin Dış Borçları Çalışma Grubu' ne zaman kurulmuştur?
+A) Mayıs 1976
+B) Mayıs 1977
+C) Mayıs 1978
+D) Mayıs 1979
+E) Mayıs 1980
+
+141. Türkiye hangi yıldan sonra ihraç edebileceği ürünleri çeşitlendirmeyi ve ihracatı artırmayı denemiştir?
+A) 1970
+B) 1975
+C) 1980
+D) 1985
+E) 1990
+
+142. 1960-1980 döneminin temel kalkınma stratejisi hangisidir?
+A) İhracata dayalı sanayileşme
+B) İthal ikameci sanayileşme
+C) Tarıma dayalı kalkınma
+D) Hizmet sektörüne dayalı kalkınma
+E) Turizme dayalı kalkınma
+
+143. Düşük faiz oranları politikası hangi sonucu doğurmuştur?
+A) Tasarrufların artması
+B) Holding bankacılığı ve bankerlik
+C) Enflasyonun düşmesi
+D) İhracatın artması
+E) İşsizliğin azalması
+
+144. Türkiye için sanayileşme, işsizlik, enflasyon ve dış ödemeler dengesi hangi dönemlerde temel problemler olmuştur?
+A) 1923-1945
+B) 1945-1960
+C) 1960-1980 ve sonrası
+D) 1980-2000
+E) 2000 sonrası
+
+145. 1965'ten sonra nüfus artış politikası nasıl değişmiştir?
+A) Nüfus artışı teşvik edildi
+B) Nüfus planlaması politikası desteklenmeye çalışıldı
+C) Göç teşvik edildi
+D) Kırsal nüfus artışı desteklendi
+E) Herhangi bir değişiklik olmadı
+
+146. Vietnam Savaşı'nda ABD hangi cephede yer almıştır?
+A) Kuzey Vietnam
+B) Güney Vietnam
+C) Tarafsız
+D) Her iki taraf
+E) Gözlemci
+
+147. Vietnam Savaşı'nda SSCB hangi tarafı desteklemiştir?
+A) Güney Vietnam
+B) Kuzey Vietnam
+C) ABD
+D) Tarafsız
+E) Her iki taraf
+
+148. Afganistan'da savaş meydanında yer alan ülke hangisidir?
+A) ABD
+B) İngiltere
+C) SSCB
+D) Çin
+E) Fransa
+
+149. Afganistan'da ABD hangi grubu desteklemiştir?
+A) Komünist hükümet
+B) Afgan Mücahitleri
+C) SSCB
+D) Tarafsız gruplar
+E) BM güçleri
+
+150. ASALA hangi dönemde Türk Dışişleri mensuplarını hedef almıştır?
+A) 1950'ler
+B) 1960'lar
+C) 1970'ler
+D) 1980'ler
+E) 1990'lar
+
+151. 1947 Yılı Türkiye Kalkınma Planı'nın diğer adı nedir?
+A) Marshall Planı
+B) Truman Planı
+C) Vaner Planı
+D) Barker Planı
+E) Neumark Planı
+
+152. Savaş yıllarında nüfus artış hızının düşmesinin sebepleri arasında hangisi yoktur?
+A) Erkek nüfusunun silah altında olması
+B) Bazı ilaçların tedarikinin yapılamaması
+C) Salgın hastalıklar
+D) Göç hareketleri
+E) Kuraklık
+
+153. Petrodolar kavramı neyi ifade eder?
+A) ABD'nin petrol geliri
+B) Petrol üreten ülkelerin elindeki kaynak
+C) Uluslararası petrol fiyatı
+D) Petrol şirketlerinin karı
+E) Petrol ithalatı maliyeti
+
+154. 'Dünya borç krizi' hangi ülkeleri etkilemiştir?
+A) Sadece Avrupa ülkeleri
+B) Türkiye, Arjantin, Meksika, Brezilya gibi gelişmekte olan ülkeler
+C) Sadece Asya ülkeleri
+D) Sadece Afrika ülkeleri
+E) Sadece gelişmiş ülkeler
+
+155. 1940-1945 arasında Türkiye ekonomisi nasıl bir süreç yaşamıştır?
+A) Hızlı büyüme
+B) Önemli oranda küçülme
+C) İstikrar
+D) Sanayileşme
+E) İhracat patlaması
+
+156. CHP hükümetlerinin olumsuz etkilenmesine yol açan uygulamalar arasında hangisi yoktur?
+A) Tarım kesiminin ezilmesi
+B) Varlık vergisinin keyfi uygulanması
+C) Sanayileşme politikaları
+D) Savaş yıllarındaki uygulamalar
+E) Dış ticarette liberalleşme arzusu olan İstanbul burjuvazisinin rahatsızlığı
+
+157. 1945'te hazırlanan 'Geniş Plan Taslağı'nın amacı neydi?
+A) İhracatı artırmak
+B) Türkiye'nin ithal ettiği her şeyi içeride üretmek
+C) Tarımı geliştirmek
+D) Turizmi teşvik etmek
+E) Dış borçları ödemek
+
+158. Tinbergen'e göre planlama neyi içermekteydi?
+A) Sadece sanayileşme
+B) Daha az enflasyon ve daha iyi istihdam düzeyi sağlayan yatırım ve tasarruf planlaması
+C) Sadece tarımsal kalkınma
+D) Sadece dış ticaret
+E) Sadece savunma harcamaları
+
+159. 1946-1953 arası dönem nasıl adlandırılmaktadır?
+A) Devletçilik dönemi
+B) Dünya ekonomisiyle farklı bir eklemlenme denemesi
+C) Planlı kalkınma dönemi
+D) İhracata dayalı büyüme dönemi
+E) Savaş ekonomisi dönemi
+
+160. Türkiye'de 1962-1976 yılları arasında yüksek büyüme temposunun temel nedeni nedir?
+A) Tarımsal üretim artışı
+B) Sanayileşme
+C) Ekonomiye önemli ölçüde dış kaynak enjekte edilmesi
+D) İhracat artışı
+E) Turizm gelirleri
+`;
+
+        // PDF'ten çıkarılan CEVAP ANAHTARI
+        const rawEkonomiAnswers = `
+1-B, 2-B, 3-B, 4-C, 5-B, 6-B, 7-B, 8-C, 9-C, 10-B
+11-D, 12-B, 13-C, 14-D, 15-B, 16-B, 17-C, 18-D, 19-C, 20-C
+21-C, 22-B, 23-B, 24-B, 25-B, 26-B, 27-B, 28-C, 29-C, 30-C
+31-B, 32-B, 33-B, 34-B, 35-B, 36-C, 37-B, 38-B, 39-C, 40-A
+41-B, 42-C, 43-C, 44-C, 45-C, 46-C, 47-C, 48-C, 49-C, 50-B
+51-C, 52-C, 53-C, 54-C, 55-C, 56-C, 57-B, 58-C, 59-C, 60-C
+61-C, 62-B, 63-C, 64-B, 65-B, 66-B, 67-B, 68-B, 69-C, 70-C
+71-C, 72-B, 73-C, 74-B, 75-C, 76-B, 77-C, 78-B, 79-B, 80-B
+81-C, 82-C, 83-B, 84-C, 85-D, 86-D, 87-B, 88-C, 89-B, 90-B
+91-C, 92-D, 93-C, 94-C, 95-B, 96-B, 97-B, 98-B, 99-B, 100-C
+101-B, 102-B, 103-B, 104-C, 105-D, 106-D, 107-D, 108-D, 109-C, 110-D
+111-B, 112-C, 113-C, 114-C, 115-B, 116-C, 117-B, 118-C, 119-D, 120-D
+121-D, 122-D, 123-B, 124-C, 125-C, 126-C, 127-B, 128-C, 129-C, 130-B
+131-B, 132-C, 133-C, 134-B, 135-B, 136-B, 137-C, 138-C, 139-C, 140-C
+141-C, 142-B, 143-B, 144-C, 145-B, 146-B, 147-B, 148-C, 149-B, 150-C
+151-C, 152-D, 153-B, 154-B, 155-B, 156-C, 157-B, 158-B, 159-B, 160-C
+`;
+    </script>
+
+    <!-- HEADER -->
+    <header class="bg-white shadow-sm z-30 px-4 py-3 flex justify-between items-center h-16 shrink-0 relative">
+        <div class="flex items-center gap-3 cursor-pointer select-none" onclick="returnToHome()">
+            <div class="bg-gradient-to-tr from-sky-600 to-blue-600 text-white w-10 h-10 rounded-xl flex items-center justify-center shadow-lg shadow-blue-200">
+                <i class="fas fa-chart-line text-lg"></i>
+            </div>
+            <div>
+                <h1 class="font-bold text-slate-800 leading-tight text-sm md:text-base">Türkiye Ekonomisi</h1>
+                <p class="text-[10px] md:text-xs text-slate-500 font-medium tracking-wide">1939-1980 DÖNEMİ</p>
+            </div>
+        </div>
+        
+        <div id="header-stats" class="hidden flex items-center gap-2 bg-slate-50 border border-slate-100 px-3 py-1.5 rounded-lg text-sm font-semibold">
+            <span class="text-green-600 flex items-center"><i class="fas fa-check mr-1.5 text-xs"></i><span id="score-correct">0</span></span>
+            <div class="w-px h-4 bg-slate-200 mx-1"></div>
+            <span class="text-red-500 flex items-center"><i class="fas fa-times mr-1.5 text-xs"></i><span id="score-wrong">0</span></span>
+        </div>
+    </header>
+
+    <!-- MAIN APP CONTAINER -->
+    <div class="flex-1 relative overflow-hidden bg-slate-50 w-full max-w-3xl mx-auto md:my-6 md:rounded-2xl md:shadow-xl md:border border-slate-200">
+        
+        <!-- 1. START SCREEN -->
+        <div id="start-screen" class="absolute inset-0 flex flex-col p-6 overflow-y-auto fade-in bg-white z-20">
+            <div class="text-center mt-6 mb-10">
+                <div class="inline-block p-3 rounded-full bg-sky-50 text-sky-600 mb-4">
+                    <i class="fas fa-book-open text-3xl"></i>
+                </div>
+                <h2 class="text-2xl font-bold text-slate-800 mb-2">Soru Bankası</h2>
+                <p class="text-slate-500 text-sm max-w-xs mx-auto">Sınav modunu seçerek teste başlayın. Yanlış yaptığınız sorular tekrar sorulacaktır.</p>
+                <div class="mt-4 text-xs font-semibold text-sky-600 bg-sky-50 inline-block px-3 py-1 rounded-full border border-sky-100">
+                    <i class="fas fa-database mr-1"></i> Toplam <span id="total-pool-count">...</span> Soru
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 gap-4 w-full max-w-sm mx-auto">
+                <button onclick="startQuiz(10)" class="menu-btn p-5 rounded-2xl border border-slate-100 shadow-sm flex items-center gap-4 hover:border-sky-500 hover:shadow-md group">
+                    <div class="w-12 h-12 rounded-full bg-sky-50 text-sky-600 flex items-center justify-center font-bold text-xl group-hover:bg-sky-600 group-hover:text-white transition-colors">10</div>
+                    <div class="text-left">
+                        <div class="font-bold text-slate-700 group-hover:text-sky-700">Hızlı Test</div>
+                        <div class="text-xs text-slate-400">Rastgele 10 Soru</div>
+                    </div>
+                    <i class="fas fa-chevron-right ml-auto text-slate-300 group-hover:text-sky-500"></i>
+                </button>
+
+                <button onclick="startQuiz(25)" class="menu-btn p-5 rounded-2xl border border-slate-100 shadow-sm flex items-center gap-4 hover:border-purple-500 hover:shadow-md group">
+                    <div class="w-12 h-12 rounded-full bg-purple-50 text-purple-600 flex items-center justify-center font-bold text-xl group-hover:bg-purple-600 group-hover:text-white transition-colors">25</div>
+                    <div class="text-left">
+                        <div class="font-bold text-slate-700 group-hover:text-purple-700">Standart</div>
+                        <div class="text-xs text-slate-400">Rastgele 25 Soru</div>
+                    </div>
+                    <i class="fas fa-chevron-right ml-auto text-slate-300 group-hover:text-purple-500"></i>
+                </button>
+
+                <button onclick="startQuiz(50)" class="menu-btn p-5 rounded-2xl border border-slate-100 shadow-sm flex items-center gap-4 hover:border-orange-500 hover:shadow-md group">
+                    <div class="w-12 h-12 rounded-full bg-orange-50 text-orange-600 flex items-center justify-center font-bold text-xl group-hover:bg-orange-600 group-hover:text-white transition-colors">50</div>
+                    <div class="text-left">
+                        <div class="font-bold text-slate-700 group-hover:text-orange-700">Kapsamlı</div>
+                        <div class="text-xs text-slate-400">Rastgele 50 Soru</div>
+                    </div>
+                    <i class="fas fa-chevron-right ml-auto text-slate-300 group-hover:text-orange-500"></i>
+                </button>
+
+                <button onclick="startQuiz('all')" class="menu-btn p-5 rounded-2xl border border-slate-100 shadow-sm flex items-center gap-4 hover:border-slate-800 hover:shadow-md group">
+                    <div class="w-12 h-12 rounded-full bg-slate-100 text-slate-600 flex items-center justify-center font-bold text-xl group-hover:bg-slate-800 group-hover:text-white transition-colors">
+                        <i class="fas fa-infinity text-base"></i>
+                    </div>
+                    <div class="text-left">
+                        <div class="font-bold text-slate-700 group-hover:text-slate-900">Maraton</div>
+                        <div class="text-xs text-slate-400">Tüm Sorular</div>
+                    </div>
+                    <i class="fas fa-chevron-right ml-auto text-slate-300 group-hover:text-slate-600"></i>
+                </button>
+            </div>
+            
+            <div class="mt-auto pt-8 text-center text-[10px] text-slate-400">
+                &copy; 2024 Soru Uygulaması v2.0
+            </div>
+        </div>
+
+        <!-- 2. QUIZ SCREEN -->
+        <div id="quiz-screen" class="absolute inset-0 flex flex-col hidden bg-slate-50 z-10">
+            <!-- Progress Line -->
+            <div class="w-full bg-white h-1 shrink-0">
+                <div id="progress-bar" class="bg-sky-500 h-full progress-fill" style="width: 0%"></div>
+            </div>
+
+            <!-- Scrollable Area -->
+            <div class="flex-1 overflow-y-auto p-4 md:p-8 custom-scrollbar" id="question-area">
+                <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-200/60 mb-6 fade-in relative">
+                    <!-- Question Badge & Counter -->
+                    <div class="flex justify-between items-center mb-5">
+                        <span class="bg-sky-50 text-sky-700 text-[10px] md:text-xs font-bold px-2.5 py-1 rounded-md uppercase tracking-wider border border-sky-100">
+                            EKONOMİ
+                        </span>
+                        <div class="text-xs font-mono text-slate-400" id="question-counter">1 / 10</div>
+                    </div>
+                    
+                    <!-- Question Text -->
+                    <h3 id="question-text" class="text-lg md:text-xl font-medium text-slate-800 leading-relaxed mb-2">
+                        Soru yükleniyor...
+                    </h3>
+                </div>
+
+                <!-- Options -->
+                <div id="options-container" class="space-y-3 pb-24">
+                    <!-- Şıklar buraya JS ile gelecek -->
+                </div>
+            </div>
+
+            <!-- Footer for Feedback & Next -->
+            <div id="quiz-footer" class="absolute bottom-0 left-0 right-0 bg-white border-t border-slate-100 p-4 flex items-center justify-between hidden shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)] z-20">
+                <div id="feedback-text" class="text-sm font-medium px-2"></div>
+                <button id="next-btn" onclick="nextQuestion()" class="bg-slate-800 hover:bg-slate-900 text-white px-6 py-3 rounded-xl font-semibold shadow-lg shadow-slate-200 active:scale-95 transition-all flex items-center gap-2">
+                    Sonraki <i class="fas fa-arrow-right"></i>
+                </button>
+            </div>
+            
+            <!-- Auto Timer Bar -->
+            <div id="auto-timer" class="absolute top-0 left-0 h-1 bg-green-500 w-full hidden z-30"></div>
+        </div>
+
+        <!-- 3. RESULT SCREEN -->
+        <div id="result-screen" class="absolute inset-0 flex flex-col items-center justify-center p-8 hidden bg-white fade-in text-center z-30">
+            <div class="w-24 h-24 bg-sky-50 text-sky-600 rounded-full flex items-center justify-center text-4xl mb-6 shadow-sm animate-bounce">
+                <i class="fas fa-trophy"></i>
+            </div>
+            <h2 class="text-3xl font-bold text-slate-800 mb-2">Tebrikler!</h2>
+            <p class="text-slate-500 mb-10">Testi başarıyla tamamladınız.</p>
+
+            <div class="grid grid-cols-2 gap-4 w-full max-w-xs mb-10">
+                <div class="bg-green-50 p-5 rounded-2xl border border-green-100 flex flex-col items-center">
+                    <span class="text-green-600 text-xs font-bold uppercase tracking-wider mb-1">DOĞRU</span>
+                    <span class="text-4xl font-bold text-green-700" id="final-correct">0</span>
+                </div>
+                <div class="bg-red-50 p-5 rounded-2xl border border-red-100 flex flex-col items-center">
+                    <span class="text-red-500 text-xs font-bold uppercase tracking-wider mb-1">YANLIŞ</span>
+                    <span class="text-4xl font-bold text-red-700" id="final-wrong">0</span>
+                </div>
+            </div>
+
+            <button onclick="returnToHome()" class="w-full max-w-xs bg-sky-600 hover:bg-sky-700 text-white py-4 rounded-xl font-bold shadow-lg shadow-sky-200 transition-all active:scale-95">
+                Ana Menüye Dön
+            </button>
+        </div>
+
+    </div>
+
+    <!-- JAVASCRIPT LOGIC -->
+    <script>
+        // --- VERİ İŞLEME ---
+        let fullQuestionPool = [];
+        
+        function parseData() {
+            // Cevap Anahtarı
+            const ansKey = {};
+            const ansMatches = rawEkonomiAnswers.match(/(\d+)\s*-\s*([A-E])/g);
+            if (ansMatches) {
+                ansMatches.forEach(pair => {
+                    const parts = pair.split('-');
+                    const num = parseInt(parts[0].trim());
+                    const ans = parts[1].trim();
+                    ansKey[num] = ans;
+                });
+            }
+
+            // Sorular
+            const blocks = rawEkonomiQuestions.split(/(?:^|\n)(?=\d+\.)/g);
+            blocks.forEach(block => {
+                block = block.trim();
+                if (!block) return;
+
+                const numMatch = block.match(/^(\d+)\./);
+                if (!numMatch) return;
+                
+                const qNum = parseInt(numMatch[1]);
+                
+                // Şıkları bulmak için daha genel bir yaklaşım
+                const idxA = block.search(/(?:^|\s)A\)/); 
+                if (idxA === -1) return;
+
+                const qText = block.substring(0, idxA).replace(/^\d+\.\s*/, '').trim();
+                const optsText = block.substring(idxA);
+
+                const opts = [];
+                // Şık ayrıştırma regex'i
+                const optRegex = /(?:^|\s)([A-E])\)([\s\S]*?)(?=(?:\s[A-E]\))|$)/g;
+                let m;
+                while ((m = optRegex.exec(optsText)) !== null) {
+                    opts.push({
+                        k: m[1],
+                        t: m[2].trim()
+                    });
+                }
+
+                if (opts.length >= 2 && ansKey[qNum]) {
+                    fullQuestionPool.push({
+                        id: qNum,
+                        cat: "Ekonomi Tarihi",
+                        q: qText,
+                        opts: opts,
+                        a: ansKey[qNum]
+                    });
+                }
+            });
+
+            document.getElementById('total-pool-count').innerText = fullQuestionPool.length;
+        }
+
+        // --- OYUN MANTIĞI ---
+        let quizQueue = []; 
+        let totalInitialCount = 0;
+        let correctCount = 0;
+        let wrongCount = 0;
+        let currentQ = null;
+        let isWaiting = false;
+
+        function shuffle(array) {
+            return array.sort(() => Math.random() - 0.5);
+        }
+
+        function returnToHome() {
+            document.getElementById('start-screen').classList.remove('hidden');
+            document.getElementById('quiz-screen').classList.add('hidden');
+            document.getElementById('result-screen').classList.add('hidden');
+            document.getElementById('header-stats').classList.add('hidden');
+        }
+
+        function startQuiz(count) {
+            if (count === 'all') count = fullQuestionPool.length;
+
+            let shuffledPool = shuffle([...fullQuestionPool]);
+            quizQueue = shuffledPool.slice(0, count);
+            totalInitialCount = count;
+
+            correctCount = 0;
+            wrongCount = 0;
+            updateStats();
+
+            document.getElementById('start-screen').classList.add('hidden');
+            document.getElementById('result-screen').classList.add('hidden');
+            document.getElementById('quiz-screen').classList.remove('hidden');
+            document.getElementById('header-stats').classList.remove('hidden');
+
+            loadNextQuestion();
+        }
+
+        function loadNextQuestion() {
+            if (quizQueue.length === 0) {
+                showResults();
+                return;
+            }
+
+            isWaiting = false;
+            document.getElementById('quiz-footer').classList.add('hidden');
+            document.getElementById('options-container').classList.remove('pointer-events-none');
+            
+            currentQ = quizQueue.shift();
+
+            const progress = Math.min(100, (correctCount / totalInitialCount) * 100);
+            document.getElementById('progress-bar').style.width = `${progress}%`;
+            
+            document.getElementById('question-counter').innerText = `Hedef: ${totalInitialCount} | Kuyruk: ${quizQueue.length + 1}`;
+            document.getElementById('question-text').innerText = currentQ.q;
+
+            const container = document.getElementById('options-container');
+            container.innerHTML = '';
+
+            currentQ.opts.forEach(opt => {
+                const btn = document.createElement('div');
+                btn.className = `option-card p-4 rounded-xl cursor-pointer flex items-center gap-3.5 group`;
+                btn.onclick = () => checkAnswer(opt.k, btn);
+                btn.innerHTML = `
+                    <div class="w-9 h-9 rounded-full bg-slate-100 text-slate-500 font-bold flex items-center justify-center shrink-0 border border-slate-200 transition-colors group-hover:bg-sky-100 group-hover:text-sky-600 group-hover:border-sky-200">${opt.k}</div>
+                    <div class="font-medium text-slate-700 leading-snug group-hover:text-slate-900">${opt.t}</div>
+                `;
+                container.appendChild(btn);
+            });
+
+            document.getElementById('question-area').scrollTo(0, 0);
+        }
+
+        function checkAnswer(selectedKey, btnElement) {
+            if (isWaiting) return;
+            isWaiting = true;
+
+            const isCorrect = selectedKey === currentQ.a;
+            const allOptions = document.querySelectorAll('.option-card');
+
+            allOptions.forEach(opt => opt.classList.add('disabled'));
+
+            allOptions.forEach(opt => {
+                const key = opt.querySelector('div').innerText;
+                const iconContainer = opt.querySelector('div');
+                
+                if (key === currentQ.a) {
+                    opt.classList.add('correct');
+                    iconContainer.innerHTML = '<i class="fas fa-check"></i>';
+                    iconContainer.className = 'w-9 h-9 rounded-full bg-green-500 text-white font-bold flex items-center justify-center shrink-0 border border-green-600 shadow-sm';
+                } else if (key === selectedKey && !isCorrect) {
+                    opt.classList.add('wrong');
+                    iconContainer.innerHTML = '<i class="fas fa-times"></i>';
+                    iconContainer.className = 'w-9 h-9 rounded-full bg-red-500 text-white font-bold flex items-center justify-center shrink-0 border border-red-600 shadow-sm';
+                } else {
+                    opt.classList.add('opacity-50');
+                }
+            });
+
+            if (isCorrect) {
+                correctCount++;
+                updateStats();
+                const timerBar = document.getElementById('auto-timer');
+                timerBar.classList.remove('hidden');
+                timerBar.style.width = '0%';
+                timerBar.style.transition = 'width 1.5s linear';
+                timerBar.offsetHeight; 
+                timerBar.style.width = '100%';
+                setTimeout(() => {
+                    timerBar.classList.add('hidden');
+                    timerBar.style.width = '0%';
+                    timerBar.style.transition = 'none';
+                    loadNextQuestion();
+                }, 1500);
+            } else {
+                wrongCount++;
+                updateStats();
+                const insertIndex = Math.min(quizQueue.length, 3);
+                quizQueue.splice(insertIndex, 0, currentQ);
+                const footer = document.getElementById('quiz-footer');
+                footer.classList.remove('hidden');
+                document.getElementById('feedback-text').innerHTML = `
+                    <div class="flex items-center text-red-600">
+                        <i class="fas fa-exclamation-circle mr-2"></i>
+                        <span>Yanlış! Bu soru tekrar sorulacak.</span>
+                    </div>`;
+            }
+        }
+
+        function nextQuestion() { loadNextQuestion(); }
+        function updateStats() {
+            document.getElementById('score-correct').innerText = correctCount;
+            document.getElementById('score-wrong').innerText = wrongCount;
+        }
+        function showResults() {
+            document.getElementById('quiz-screen').classList.add('hidden');
+            document.getElementById('result-screen').classList.remove('hidden');
+            document.getElementById('header-stats').classList.add('hidden');
+            document.getElementById('final-correct').innerText = correctCount;
+            document.getElementById('final-wrong').innerText = wrongCount;
+        }
+
+        window.onload = parseData;
+
+    </script>
+</body>
+</html>
