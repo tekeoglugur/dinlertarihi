@@ -68,6 +68,22 @@
         .menu-btn:active {
             transform: scale(0.95);
         }
+
+        /* Slide-up animasyonu */
+        @keyframes slideUp {
+            from {
+                transform: translateY(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+        
+        .slide-up {
+            animation: slideUp 0.3s ease-out forwards;
+        }
     </style>
 </head>
 <body class="h-screen flex flex-col text-gray-800 overflow-hidden">
@@ -175,19 +191,29 @@
                     </h3>
                 </div>
 
-                <div id="options-container" class="space-y-3 pb-4">
+                <div id="options-container" class="space-y-3">
                     <!-- Şıklar Buraya -->
                 </div>
-            </div>
 
-            <!-- Alt Bilgi / Sonraki Butonu - SABİT POZISYON -->
-            <div id="quiz-footer" class="bg-white border-t p-4 shrink-0 hidden shadow-lg">
-                <div class="flex items-center justify-between max-w-3xl mx-auto">
-                    <div id="feedback-text" class="text-sm font-medium flex-1 mr-4"></div>
-                    <button id="next-btn" onclick="nextQuestion()" class="bg-gray-800 text-white px-6 py-3 rounded-xl font-medium shadow-lg active:scale-95 transition-transform flex items-center gap-2 shrink-0">
-                        Sonraki <i class="fas fa-arrow-right"></i>
+                <!-- YANLIŞTA GÖSTER ALANI - Şıklardan hemen sonra -->
+                <div id="inline-feedback" class="hidden mt-6 bg-red-50 border-2 border-red-200 rounded-2xl p-5 slide-up">
+                    <div class="flex items-start gap-3 mb-4">
+                        <div class="w-10 h-10 bg-red-500 text-white rounded-full flex items-center justify-center shrink-0">
+                            <i class="fas fa-times text-lg"></i>
+                        </div>
+                        <div class="flex-1">
+                            <h4 class="font-bold text-red-900 text-lg mb-1">Yanlış Cevap!</h4>
+                            <p class="text-red-700 text-sm">Bu soruyu birazdan tekrar soracağım.</p>
+                        </div>
+                    </div>
+                    
+                    <button onclick="nextQuestion()" class="w-full bg-red-600 text-white py-4 rounded-xl font-bold shadow-lg active:scale-95 transition-transform flex items-center justify-center gap-2">
+                        Sonraki Soru <i class="fas fa-arrow-right"></i>
                     </button>
                 </div>
+
+                <!-- Alt boşluk -->
+                <div class="h-8"></div>
             </div>
             
             <!-- Otomatik Geçiş Sayacı (Görsel) -->
@@ -327,7 +353,9 @@
             }
 
             isWaiting = false;
-            document.getElementById('quiz-footer').classList.add('hidden');
+            
+            // Feedback alanını gizle
+            document.getElementById('inline-feedback').classList.add('hidden');
             
             // Kuyruğun başından soruyu çek (shift)
             currentQ = quizQueue.shift();
@@ -415,10 +443,14 @@
                 const insertIndex = Math.min(quizQueue.length, 3);
                 quizQueue.splice(insertIndex, 0, currentQ);
 
-                // Alt bilgiyi göster (Manuel geçiş)
-                const footer = document.getElementById('quiz-footer');
-                footer.classList.remove('hidden');
-                document.getElementById('feedback-text').innerHTML = `<span class="text-red-500 font-bold">Yanlış!</span> Bu soruyu birazdan tekrar soracağım.`;
+                // Inline feedback'i göster
+                const feedback = document.getElementById('inline-feedback');
+                feedback.classList.remove('hidden');
+                
+                // Feedback'e otomatik scroll
+                setTimeout(() => {
+                    feedback.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                }, 100);
             }
         }
 
