@@ -175,17 +175,19 @@
                     </h3>
                 </div>
 
-                <div id="options-container" class="space-y-3 pb-20">
+                <div id="options-container" class="space-y-3 pb-4">
                     <!-- Şıklar Buraya -->
                 </div>
             </div>
 
-            <!-- Alt Bilgi / Sonraki Butonu -->
-            <div id="quiz-footer" class="bg-white border-t p-4 shrink-0 flex items-center justify-between hidden">
-                <div id="feedback-text" class="text-sm font-medium"></div>
-                <button id="next-btn" onclick="nextQuestion()" class="bg-gray-800 text-white px-6 py-3 rounded-xl font-medium shadow-lg active:scale-95 transition-transform flex items-center gap-2">
-                    Sonraki <i class="fas fa-arrow-right"></i>
-                </button>
+            <!-- Alt Bilgi / Sonraki Butonu - SABİT POZISYON -->
+            <div id="quiz-footer" class="bg-white border-t p-4 shrink-0 hidden shadow-lg">
+                <div class="flex items-center justify-between max-w-3xl mx-auto">
+                    <div id="feedback-text" class="text-sm font-medium flex-1 mr-4"></div>
+                    <button id="next-btn" onclick="nextQuestion()" class="bg-gray-800 text-white px-6 py-3 rounded-xl font-medium shadow-lg active:scale-95 transition-transform flex items-center gap-2 shrink-0">
+                        Sonraki <i class="fas fa-arrow-right"></i>
+                    </button>
+                </div>
             </div>
             
             <!-- Otomatik Geçiş Sayacı (Görsel) -->
@@ -332,9 +334,7 @@
 
             // UI Güncelle
             const remaining = quizQueue.length;
-            const progress = ((totalInitialCount - remaining) / totalInitialCount) * 100; // Basit bir ilerleme hesabı
-            // Not: Yanlış cevaplarla queue uzayabilir, bu yüzden progress %100'e doğru garip davranabilir ama öğretici modda kabul edilebilir.
-            // Alternatif: (CorrectCount / InitialTarget) * 100
+            const progress = ((totalInitialCount - remaining) / totalInitialCount) * 100;
             
             document.getElementById('progress-bar').style.width = `${Math.min(100, (correctCount / totalInitialCount) * 100)}%`;
             document.getElementById('question-counter').innerText = `Hedef: ${totalInitialCount} | Kalan: ${remaining + 1}`;
@@ -412,7 +412,6 @@
                 updateStats();
 
                 // Soruyu tekrar listeye ekle (Öğretici Mod: 3 soru sonrasına ekle)
-                // Eğer liste 3'ten kısaysa sonuna ekle.
                 const insertIndex = Math.min(quizQueue.length, 3);
                 quizQueue.splice(insertIndex, 0, currentQ);
 
@@ -420,8 +419,6 @@
                 const footer = document.getElementById('quiz-footer');
                 footer.classList.remove('hidden');
                 document.getElementById('feedback-text').innerHTML = `<span class="text-red-500 font-bold">Yanlış!</span> Bu soruyu birazdan tekrar soracağım.`;
-                
-                // Kullanıcı inceleyip "Sonraki"ye basacak
             }
         }
 
@@ -449,4 +446,5 @@
 
     </script>
 </body>
+
 </html>
