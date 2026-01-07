@@ -20,6 +20,8 @@
         .progress-fill { transition: width 0.5s ease-out; }
         .menu-btn { background: white; transition: transform 0.2s, box-shadow 0.2s; }
         .menu-btn:active { transform: scale(0.96); }
+        .period-btn { background: white; transition: all 0.2s; }
+        .period-btn.active { background: linear-gradient(135deg, #0ea5e9 0%, #3b82f6 100%); color: white; border-color: #0284c7; }
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
@@ -34,7 +36,7 @@
 
     <!-- DATA SECTION -->
     <script>
-        // PDF'ten çıkarılan HAM METİN (Başına \n eklenerek parsing garantilendi)
+        // PDF'ten çıkarılan HAM METİN
         const rawEkonomiQuestions = `
 1. I. Dünya Savaşı ve II. Dünya Savaşı sürecinde Türkiye'nin ekonomi politikası nasıl değerlendirilebilir?
 A) Liberal ekonomi politikası
@@ -1157,7 +1159,7 @@ D) İhracat artışı
 E) Turizm gelirleri
 `;
 
-        // PDF'ten çıkarılan CEVAP ANAHTARI
+        // Cevap Anahtarı
         const rawEkonomiAnswers = `
 1-B, 2-B, 3-B, 4-C, 5-B, 6-B, 7-B, 8-C, 9-C, 10-B
 11-D, 12-B, 13-C, 14-D, 15-B, 16-B, 17-C, 18-D, 19-C, 20-C
@@ -1202,59 +1204,86 @@ E) Turizm gelirleri
         
         <!-- 1. START SCREEN -->
         <div id="start-screen" class="absolute inset-0 flex flex-col p-6 overflow-y-auto fade-in bg-white z-20">
-            <div class="text-center mt-6 mb-10">
+            <div class="text-center mt-6 mb-8">
                 <div class="inline-block p-3 rounded-full bg-sky-50 text-sky-600 mb-4">
                     <i class="fas fa-book-open text-3xl"></i>
                 </div>
                 <h2 class="text-2xl font-bold text-slate-800 mb-2">Soru Bankası</h2>
-                <p class="text-slate-500 text-sm max-w-xs mx-auto">Sınav modunu seçerek teste başlayın. Yanlış yaptığınız sorular tekrar sorulacaktır.</p>
+                <p class="text-slate-500 text-sm max-w-xs mx-auto">Dönem ve soru sayısını seçerek teste başlayın.</p>
                 <div class="mt-4 text-xs font-semibold text-sky-600 bg-sky-50 inline-block px-3 py-1 rounded-full border border-sky-100">
                     <i class="fas fa-database mr-1"></i> Toplam <span id="total-pool-count">...</span> Soru
                 </div>
             </div>
 
-            <div class="grid grid-cols-1 gap-4 w-full max-w-sm mx-auto">
-                <button onclick="startQuiz(10)" class="menu-btn p-5 rounded-2xl border border-slate-100 shadow-sm flex items-center gap-4 hover:border-sky-500 hover:shadow-md group">
-                    <div class="w-12 h-12 rounded-full bg-sky-50 text-sky-600 flex items-center justify-center font-bold text-xl group-hover:bg-sky-600 group-hover:text-white transition-colors">10</div>
-                    <div class="text-left">
-                        <div class="font-bold text-slate-700 group-hover:text-sky-700">Hızlı Test</div>
-                        <div class="text-xs text-slate-400">Rastgele 10 Soru</div>
-                    </div>
-                    <i class="fas fa-chevron-right ml-auto text-slate-300 group-hover:text-sky-500"></i>
-                </button>
+            <!-- DÖNEM SEÇİMİ -->
+            <div class="mb-6">
+                <h3 class="text-sm font-bold text-slate-700 mb-3 text-center">📅 DÖNEM SEÇİMİ</h3>
+                <div class="grid grid-cols-1 gap-3 w-full max-w-sm mx-auto">
+                    <button onclick="selectPeriod('all')" class="period-btn active p-4 rounded-xl border-2 border-slate-200 font-semibold text-slate-700 transition-all flex items-center justify-between shadow-sm">
+                        <span>🔄 Tüm Dönemler</span>
+                        <span class="text-xs bg-slate-100 px-2 py-1 rounded-full" id="period-all-count">160</span>
+                    </button>
+                    <button onclick="selectPeriod('1939-1946')" class="period-btn p-4 rounded-xl border-2 border-slate-200 font-semibold text-slate-700 transition-all flex items-center justify-between shadow-sm">
+                        <span>⚔️ 1939-1946 (Savaş Dönemi)</span>
+                        <span class="text-xs bg-slate-100 px-2 py-1 rounded-full" id="period-1939-count">0</span>
+                    </button>
+                    <button onclick="selectPeriod('1946-1960')" class="period-btn p-4 rounded-xl border-2 border-slate-200 font-semibold text-slate-700 transition-all flex items-center justify-between shadow-sm">
+                        <span>🌾 1946-1960 (DP Dönemi)</span>
+                        <span class="text-xs bg-slate-100 px-2 py-1 rounded-full" id="period-1946-count">0</span>
+                    </button>
+                    <button onclick="selectPeriod('1960-1980')" class="period-btn p-4 rounded-xl border-2 border-slate-200 font-semibold text-slate-700 transition-all flex items-center justify-between shadow-sm">
+                        <span>🏭 1960-1980 (Planlı Dönem)</span>
+                        <span class="text-xs bg-slate-100 px-2 py-1 rounded-full" id="period-1960-count">0</span>
+                    </button>
+                </div>
+            </div>
 
-                <button onclick="startQuiz(25)" class="menu-btn p-5 rounded-2xl border border-slate-100 shadow-sm flex items-center gap-4 hover:border-purple-500 hover:shadow-md group">
-                    <div class="w-12 h-12 rounded-full bg-purple-50 text-purple-600 flex items-center justify-center font-bold text-xl group-hover:bg-purple-600 group-hover:text-white transition-colors">25</div>
-                    <div class="text-left">
-                        <div class="font-bold text-slate-700 group-hover:text-purple-700">Standart</div>
-                        <div class="text-xs text-slate-400">Rastgele 25 Soru</div>
-                    </div>
-                    <i class="fas fa-chevron-right ml-auto text-slate-300 group-hover:text-purple-500"></i>
-                </button>
+            <!-- SORU SAYISI SEÇİMİ -->
+            <div class="mb-6">
+                <h3 class="text-sm font-bold text-slate-700 mb-3 text-center">🎯 SORU SAYISI</h3>
+                <div class="grid grid-cols-1 gap-4 w-full max-w-sm mx-auto">
+                    <button onclick="startQuiz(10)" class="menu-btn p-5 rounded-2xl border border-slate-100 shadow-sm flex items-center gap-4 hover:border-sky-500 hover:shadow-md group">
+                        <div class="w-12 h-12 rounded-full bg-sky-50 text-sky-600 flex items-center justify-center font-bold text-xl group-hover:bg-sky-600 group-hover:text-white transition-colors">10</div>
+                        <div class="text-left">
+                            <div class="font-bold text-slate-700 group-hover:text-sky-700">Hızlı Test</div>
+                            <div class="text-xs text-slate-400">Rastgele 10 Soru</div>
+                        </div>
+                        <i class="fas fa-chevron-right ml-auto text-slate-300 group-hover:text-sky-500"></i>
+                    </button>
 
-                <button onclick="startQuiz(50)" class="menu-btn p-5 rounded-2xl border border-slate-100 shadow-sm flex items-center gap-4 hover:border-orange-500 hover:shadow-md group">
-                    <div class="w-12 h-12 rounded-full bg-orange-50 text-orange-600 flex items-center justify-center font-bold text-xl group-hover:bg-orange-600 group-hover:text-white transition-colors">50</div>
-                    <div class="text-left">
-                        <div class="font-bold text-slate-700 group-hover:text-orange-700">Kapsamlı</div>
-                        <div class="text-xs text-slate-400">Rastgele 50 Soru</div>
-                    </div>
-                    <i class="fas fa-chevron-right ml-auto text-slate-300 group-hover:text-orange-500"></i>
-                </button>
+                    <button onclick="startQuiz(25)" class="menu-btn p-5 rounded-2xl border border-slate-100 shadow-sm flex items-center gap-4 hover:border-purple-500 hover:shadow-md group">
+                        <div class="w-12 h-12 rounded-full bg-purple-50 text-purple-600 flex items-center justify-center font-bold text-xl group-hover:bg-purple-600 group-hover:text-white transition-colors">25</div>
+                        <div class="text-left">
+                            <div class="font-bold text-slate-700 group-hover:text-purple-700">Standart</div>
+                            <div class="text-xs text-slate-400">Rastgele 25 Soru</div>
+                        </div>
+                        <i class="fas fa-chevron-right ml-auto text-slate-300 group-hover:text-purple-500"></i>
+                    </button>
 
-                <button onclick="startQuiz('all')" class="menu-btn p-5 rounded-2xl border border-slate-100 shadow-sm flex items-center gap-4 hover:border-slate-800 hover:shadow-md group">
-                    <div class="w-12 h-12 rounded-full bg-slate-100 text-slate-600 flex items-center justify-center font-bold text-xl group-hover:bg-slate-800 group-hover:text-white transition-colors">
-                        <i class="fas fa-infinity text-base"></i>
-                    </div>
-                    <div class="text-left">
-                        <div class="font-bold text-slate-700 group-hover:text-slate-900">Maraton</div>
-                        <div class="text-xs text-slate-400">Tüm Sorular</div>
-                    </div>
-                    <i class="fas fa-chevron-right ml-auto text-slate-300 group-hover:text-slate-600"></i>
-                </button>
+                    <button onclick="startQuiz(50)" class="menu-btn p-5 rounded-2xl border border-slate-100 shadow-sm flex items-center gap-4 hover:border-orange-500 hover:shadow-md group">
+                        <div class="w-12 h-12 rounded-full bg-orange-50 text-orange-600 flex items-center justify-center font-bold text-xl group-hover:bg-orange-600 group-hover:text-white transition-colors">50</div>
+                        <div class="text-left">
+                            <div class="font-bold text-slate-700 group-hover:text-orange-700">Kapsamlı</div>
+                            <div class="text-xs text-slate-400">Rastgele 50 Soru</div>
+                        </div>
+                        <i class="fas fa-chevron-right ml-auto text-slate-300 group-hover:text-orange-500"></i>
+                    </button>
+
+                    <button onclick="startQuiz('all')" class="menu-btn p-5 rounded-2xl border border-slate-100 shadow-sm flex items-center gap-4 hover:border-slate-800 hover:shadow-md group">
+                        <div class="w-12 h-12 rounded-full bg-slate-100 text-slate-600 flex items-center justify-center font-bold text-xl group-hover:bg-slate-800 group-hover:text-white transition-colors">
+                            <i class="fas fa-infinity text-base"></i>
+                        </div>
+                        <div class="text-left">
+                            <div class="font-bold text-slate-700 group-hover:text-slate-900">Maraton</div>
+                            <div class="text-xs text-slate-400">Seçilen Dönemin Tüm Soruları</div>
+                        </div>
+                        <i class="fas fa-chevron-right ml-auto text-slate-300 group-hover:text-slate-600"></i>
+                    </button>
+                </div>
             </div>
             
             <div class="mt-auto pt-8 text-center text-[10px] text-slate-400">
-                &copy; 2024 Soru Uygulaması v2.0
+                &copy; 2024 Soru Uygulaması v3.0 - Dönemsel Analiz
             </div>
         </div>
 
@@ -1270,7 +1299,7 @@ E) Turizm gelirleri
                 <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-200/60 mb-6 fade-in relative">
                     <!-- Question Badge & Counter -->
                     <div class="flex justify-between items-center mb-5">
-                        <span class="bg-sky-50 text-sky-700 text-[10px] md:text-xs font-bold px-2.5 py-1 rounded-md uppercase tracking-wider border border-sky-100">
+                        <span class="bg-sky-50 text-sky-700 text-[10px] md:text-xs font-bold px-2.5 py-1 rounded-md uppercase tracking-wider border border-sky-100" id="period-badge">
                             EKONOMİ
                         </span>
                         <div class="text-xs font-mono text-slate-400" id="question-counter">1 / 10</div>
@@ -1287,7 +1316,7 @@ E) Turizm gelirleri
                     <!-- Şıklar buraya JS ile gelecek -->
                 </div>
 
-                <!-- INLINE FEEDBACK - Şıklardan hemen sonra -->
+                <!-- INLINE FEEDBACK -->
                 <div id="inline-feedback" class="hidden mt-6 bg-red-50 border-2 border-red-200 rounded-2xl p-5 slide-up">
                     <div class="flex items-start gap-3 mb-4">
                         <div class="w-10 h-10 bg-red-500 text-white rounded-full flex items-center justify-center shrink-0">
@@ -1342,7 +1371,15 @@ E) Turizm gelirleri
     <script>
         // --- VERİ İŞLEME ---
         let fullQuestionPool = [];
+        let selectedPeriod = 'all';
         
+        // Soruları dönemlere göre gruplama
+        const periodRanges = {
+            '1939-1946': [1, 74],      // Savaş dönemi ve 1946'ya kadar
+            '1946-1960': [75, 108],    // DP dönemi
+            '1960-1980': [109, 160]    // Planlı dönem
+        };
+
         function parseData() {
             // Cevap Anahtarı
             const ansKey = {};
@@ -1367,7 +1404,6 @@ E) Turizm gelirleri
                 
                 const qNum = parseInt(numMatch[1]);
                 
-                // Şıkları bulmak için daha genel bir yaklaşım
                 const idxA = block.search(/(?:^|\s)A\)/); 
                 if (idxA === -1) return;
 
@@ -1375,7 +1411,6 @@ E) Turizm gelirleri
                 const optsText = block.substring(idxA);
 
                 const opts = [];
-                // Şık ayrıştırma regex'i
                 const optRegex = /(?:^|\s)([A-E])\)([\s\S]*?)(?=(?:\s[A-E]\))|$)/g;
                 let m;
                 while ((m = optRegex.exec(optsText)) !== null) {
@@ -1386,8 +1421,19 @@ E) Turizm gelirleri
                 }
 
                 if (opts.length >= 2 && ansKey[qNum]) {
+                    // Dönem belirleme
+                    let period = 'unknown';
+                    if (qNum >= periodRanges['1939-1946'][0] && qNum <= periodRanges['1939-1946'][1]) {
+                        period = '1939-1946';
+                    } else if (qNum >= periodRanges['1946-1960'][0] && qNum <= periodRanges['1946-1960'][1]) {
+                        period = '1946-1960';
+                    } else if (qNum >= periodRanges['1960-1980'][0] && qNum <= periodRanges['1960-1980'][1]) {
+                        period = '1960-1980';
+                    }
+
                     fullQuestionPool.push({
                         id: qNum,
+                        period: period,
                         cat: "Ekonomi Tarihi",
                         q: qText,
                         opts: opts,
@@ -1396,7 +1442,32 @@ E) Turizm gelirleri
                 }
             });
 
+            updatePeriodCounts();
+        }
+
+        function updatePeriodCounts() {
             document.getElementById('total-pool-count').innerText = fullQuestionPool.length;
+            
+            const period1939 = fullQuestionPool.filter(q => q.period === '1939-1946').length;
+            const period1946 = fullQuestionPool.filter(q => q.period === '1946-1960').length;
+            const period1960 = fullQuestionPool.filter(q => q.period === '1960-1980').length;
+            
+            document.getElementById('period-all-count').innerText = fullQuestionPool.length;
+            document.getElementById('period-1939-count').innerText = period1939;
+            document.getElementById('period-1946-count').innerText = period1946;
+            document.getElementById('period-1960-count').innerText = period1960;
+        }
+
+        function selectPeriod(period) {
+            selectedPeriod = period;
+            
+            // Tüm butonlardan active class'ı kaldır
+            document.querySelectorAll('.period-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            // Seçilen butona active class'ı ekle
+            event.target.closest('button').classList.add('active');
         }
 
         // --- OYUN MANTIĞI ---
@@ -1419,15 +1490,34 @@ E) Turizm gelirleri
         }
 
         function startQuiz(count) {
-            if (count === 'all') count = fullQuestionPool.length;
+            // Seçilen döneme göre soruları filtrele
+            let filteredPool = selectedPeriod === 'all' 
+                ? [...fullQuestionPool] 
+                : fullQuestionPool.filter(q => q.period === selectedPeriod);
 
-            let shuffledPool = shuffle([...fullQuestionPool]);
-            quizQueue = shuffledPool.slice(0, count);
-            totalInitialCount = count;
+            if (filteredPool.length === 0) {
+                alert('Bu dönem için soru bulunamadı!');
+                return;
+            }
+
+            if (count === 'all') count = filteredPool.length;
+
+            let shuffledPool = shuffle(filteredPool);
+            quizQueue = shuffledPool.slice(0, Math.min(count, filteredPool.length));
+            totalInitialCount = quizQueue.length;
 
             correctCount = 0;
             wrongCount = 0;
             updateStats();
+
+            // Period badge güncelle
+            const periodNames = {
+                'all': 'TÜM DÖNEMLER',
+                '1939-1946': '1939-1946',
+                '1946-1960': '1946-1960',
+                '1960-1980': '1960-1980'
+            };
+            document.getElementById('period-badge').innerText = periodNames[selectedPeriod];
 
             document.getElementById('start-screen').classList.add('hidden');
             document.getElementById('result-screen').classList.add('hidden');
@@ -1445,7 +1535,6 @@ E) Turizm gelirleri
 
             isWaiting = false;
             
-            // Feedback alanını gizle
             document.getElementById('inline-feedback').classList.add('hidden');
             
             currentQ = quizQueue.shift();
@@ -1520,11 +1609,9 @@ E) Turizm gelirleri
                 const insertIndex = Math.min(quizQueue.length, 3);
                 quizQueue.splice(insertIndex, 0, currentQ);
                 
-                // Inline feedback'i göster
                 const feedback = document.getElementById('inline-feedback');
                 feedback.classList.remove('hidden');
                 
-                // Feedback'e otomatik scroll
                 setTimeout(() => {
                     feedback.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
                 }, 100);
@@ -1548,5 +1635,4 @@ E) Turizm gelirleri
 
     </script>
 </body>
-
 </html>
